@@ -25,7 +25,7 @@ public class Client {
                 String message = scanner.nextLine();
 
                 buffer = message.getBytes();
-                DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length, inetAddress, 1407);
+                DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length, inetAddress, 1409);
                 datagramSocket.send(datagramPacket);
                 datagramSocket.receive(datagramPacket);
                 String serverMessage = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
@@ -43,7 +43,7 @@ public class Client {
     public static void main(String[] args) throws SocketException, UnknownHostException {
         //s367803@helios.se.ifmo.ru
         DatagramSocket datagramSocket = new DatagramSocket();
-        InetAddress inetAddress = InetAddress.getByName("localhost");
+        InetAddress inetAddress = InetAddress.getByName("helios.cs.ifmo.ru");
         Client client = new Client(datagramSocket, inetAddress);
         System.out.println("Send datagramSocket to Server");
         client.sendThenReceive();
