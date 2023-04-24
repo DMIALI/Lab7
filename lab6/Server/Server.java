@@ -39,7 +39,7 @@ public class Server {
     }
 
     public static void main(String[] arg) throws SocketException {
-        DatagramSocket datagramSocket = new DatagramSocket(1407);
+        DatagramSocket datagramSocket = new DatagramSocket(1409);
         Server server = new Server(datagramSocket);
         server.receiveThenSend();
 
