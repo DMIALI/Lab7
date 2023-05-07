@@ -1,5 +1,7 @@
 package Client;
 
+import ManagerOfCommands.CommandsManager;
+
 import java.io.IOException;
 import java.net.*;
 import java.nio.channels.Selector;
@@ -48,7 +50,8 @@ public class Client {
         InetAddress inetAddress = InetAddress.getByName("localhost");
         Client client = new Client(datagramSocket, inetAddress);
         System.out.println("Send datagramSocket to Server");
-
+        CommandsManager commandsManager = new CommandsManager();
+        commandsManager.start(args[0]);
         client.sendThenReceive();
     }
 }
