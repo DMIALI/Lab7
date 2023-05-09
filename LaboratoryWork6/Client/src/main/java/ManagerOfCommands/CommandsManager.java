@@ -1,15 +1,12 @@
 package ManagerOfCommands;
 
-import ManagerOfCommands.CommandData.CommandData;
-import ManagerOfCommands.CommandData.InputCommandData;
 import ManagerOfCommands.Commands.*;
 import Utils.Printer;
+import ManagerOfCommands.CommandData.CommandData;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
-import java.net.DatagramPacket;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -39,7 +36,7 @@ public class CommandsManager {
                 String name = listOfCommand.remove(0);
                 //commandMap.get(inputHandler(name)).processing(new InputCommandData(scanner, printer, listOfCommand, commandMap));
                 commandMap.get(inputHandler(name)).processing(name, listOfCommand);
-                printer.errPrintln(commandMap.get(inputHandler(name)).processing(name, listOfCommand).getNumber());
+                printer.errPrintln(commandMap.get(inputHandler(name)).processing(name, listOfCommand).getNumber().toString());
             } catch(NullPointerException e) {
                 printer.errPrintln("Команда не найдена");
 

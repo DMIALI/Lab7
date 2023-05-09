@@ -5,8 +5,7 @@ import lombok.Setter;
 
 import java.io.Serializable;
 
-public class CommandData implements Serializable {
-
+public class CommandData implements Serializable, Comparable {
 
     @Setter
     @Getter
@@ -15,13 +14,21 @@ public class CommandData implements Serializable {
     @Getter
     private String args;
     @Getter
-    private static long number = 0;
-
+    private static Long number = 0L;
+    private final Long counter;
     public CommandData() {
         number++;
+        counter = number;
     }
 
-    public static String getNumber() {
-        return Long.toString(number);
+    public static Long getNumber() {
+        return number;
+    }
+    public Long getCounter() {
+        return number;
+    }
+    @Override
+    public int compareTo(Object o) {
+        return this.counter - ((CommandData) o).getCounter() > 0 ? 1 : (this.counter - ((CommandData) o).getCounter() < 0 ? -1 : 0);
     }
 }

@@ -1,5 +1,3 @@
-package Client;
-
 import ManagerOfCommands.CommandsManager;
 
 import java.io.IOException;
