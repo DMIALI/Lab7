@@ -1,55 +1,46 @@
+import ManagerOfCommands.CommandData.CommandData;
 import ManagerOfCommands.CommandsManager;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.*;
-import java.nio.channels.Selector;
 import java.util.Scanner;
 
 
 public class Client {
 
-    private DatagramSocket datagramSocket;
-    private InetAddress inetAddress;
+    private static DatagramSocket datagramSocket;
+    private static int SERVER_PORT = 1408;
     private byte[] buffer;
-    private Selector selector;
 
-    public Client(DatagramSocket datagramSocket, InetAddress inetAddress) {
+
+    public Client(DatagramSocket datagramSocket) {
         this.datagramSocket = datagramSocket;
-        this.inetAddress = inetAddress;
     }
 
-    public void sendThenReceive() {
 
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-
-            try {
-                String message = scanner.nextLine();
-
-                buffer = message.getBytes();
-                DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length, inetAddress, 1408);
-                datagramSocket.send(datagramPacket);
-                datagramSocket.receive(datagramPacket);
-                String serverMessage = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
-                System.out.println("Server message: " + serverMessage);
-            } catch (UnknownHostException e) {
-                System.out.println("gg");
-            } catch (IOException e) {
-                e.printStackTrace();
-                break;
-            }
+    public void connection(){
+        try{
+            datagramSocket.connect(InetAddress.getByName("localhost"), SERVER_PORT);
+            datagramSocket.setSoTimeout(100_000);
+        } catch (SocketException e) {
+            throw new RuntimeException(e);
+        } catch (UnknownHostException e) {
+            throw new RuntimeException(e);
         }
-
     }
 
-    public static void main(String[] args) throws SocketException, UnknownHostException {
+
+
+    public static void main(String[] args) throws SocketException {
         //s367803@helios.se.ifmo.ru
         DatagramSocket datagramSocket = new DatagramSocket();
-        InetAddress inetAddress = InetAddress.getByName("localhost");
-        Client client = new Client(datagramSocket, inetAddress);
+        Client client = new Client(datagramSocket);
+        client.connection();
         System.out.println("Send datagramSocket to Server");
         CommandsManager commandsManager = new CommandsManager();
         commandsManager.start(args[0]);
-        client.sendThenReceive();
+        //client.sendThenReceive();
     }
 }
