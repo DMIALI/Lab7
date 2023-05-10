@@ -22,28 +22,9 @@ public class CommandsManager {
         commandMap.put("shuffle", new Shuffle());
     }
 
-    public void start (String path){
-        Scanner scanner = new Scanner(System.in);
-        Printer printer = new Printer();
-        printer.outPrint("Введите команду:");
-        String command = scanner.nextLine();
-
-        while (true){
-            try{
-
-                ArrayList<String> listOfCommand = new ArrayList<String>();
-                Collections.addAll(listOfCommand, command.split(" "));
-                String name = listOfCommand.remove(0);
-                commandMap.get(inputHandler(name)).processing(name, listOfCommand);
-                printer.errPrintln(commandMap.get(inputHandler(name)).processing(name, listOfCommand).getNumber().toString());
-
-            } catch(NullPointerException e) {
-                printer.errPrintln("Команда не найдена");
-
-            }
-            printer.outPrint("Введите команду: ");
-            command = scanner.nextLine();
-        }
+    public CommandData check (String name, ArrayList<String> listOfCommand) throws NullPointerException{
+        return commandMap.get(inputHandler(name)).processing(name, listOfCommand);
+        //printer.errPrintln(commandMap.get(inputHandler(name)).processing(name, listOfCommand).getNumber().toString());
     }
 
     private String inputHandler(String input) {
