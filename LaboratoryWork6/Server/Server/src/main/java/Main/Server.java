@@ -22,32 +22,26 @@ public class Server {
         this.datagramSocket = datagramSocket;
     }
 
-    public void receiveThenSend(ClientManager clientManager, CollectionManager collectionManager){
+    public void receiveThenSend(ClientManager clientManager, CollectionManager collectionManager, Printer printer){
         while (true){
             try {
                 DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
                 datagramSocket.receive(datagramPacket);
-                if (message.equals("exit")){
-                    datagramSocket.close();
-                }
-                System.out.println(message);
-
-
-            } catch (IOException e) {
+                InetAddress inetAddress = datagramPacket.getAddress();
+                int port = datagramPacket.getPort();
+                Client client = clientManager.getClient(inetAddress, port);
+                ClientData clientData = handle(datagramPacket);
+                checkClientData(clientData, client);
+                InputCommandData inputCommandData = new InputCommandData(collectionManager,client, printer, clientData, );
+            } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
-                break;
             }
         }
     }
-    public InputCommandData handle(ClientManager clientManager, CollectionManager collectionManager, Printer printer, DatagramPacket datagramPacket) throws IOException, ClassNotFoundException {
-        InetAddress inetAddress = datagramPacket.getAddress();
-        int port = datagramPacket.getPort();
-        //String message = new String(datagramPacket.getData(), 0, datagramPacket.getLength());
+    public ClientData handle(DatagramPacket datagramPacket) throws IOException, ClassNotFoundException {
         InputStream inputStream = new ByteArrayInputStream(datagramPacket.getData());
         ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-        ClientData clientData = (ClientData) objectInputStream.readObject();
-        Client client = clientManager.getClient(inetAddress, port);
-        return new InputCommandData(collectionManager, client, printer, clientData.getArgs(), );
+        return (ClientData) objectInputStream.readObject();
     }
     public void checkClientData(ClientData clientData, Client client) throws IOException {
         if (clientData.getCounter() == client.getDatagramCounter()){
@@ -57,6 +51,7 @@ public class Server {
             if (Objects.equals(clientData.getCounter(), client.getLatestServerData().counter())){
                 send(client.getLatestServerData(), client);
             }
+            throw new IOException();
         }
     }
     public void send(ServerData serverData, Client client) throws IOException {
@@ -79,6 +74,7 @@ public class Server {
         ClientManager clientManager = new ClientManager();
         Scanner scanner = new Scanner(System.in);
         CollectionManager collectionManager = new CollectionManager("data.json", scanner);
+        Printer printer = new Printer();
         server.receiveThenSend(clientManager, collectionManager);
     }
 }

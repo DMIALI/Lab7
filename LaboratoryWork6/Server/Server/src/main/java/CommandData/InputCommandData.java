@@ -8,5 +8,5 @@ import Utils.Printer;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-public record InputCommandData(CollectionManager collectionManager, Client client, Printer printer, ArrayList<String> args, HashMap<String, Command> commandMap) {
+public record InputCommandData(CollectionManager collectionManager, Client client, Printer printer, ClientData clientData, HashMap<String, Command> commandMap) {
 }
