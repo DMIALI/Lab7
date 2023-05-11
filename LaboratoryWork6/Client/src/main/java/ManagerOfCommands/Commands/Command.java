@@ -4,9 +4,11 @@ import ManagerOfCommands.CommandData.ClientData;
 import Utils.Printer;
 
 import java.util.ArrayList;
+import java.util.Scanner;
 
 public abstract class Command {
     protected Printer printer = new Printer();
+    protected Scanner scanner = new Scanner(System.in);
     public Command() {
     }
 
