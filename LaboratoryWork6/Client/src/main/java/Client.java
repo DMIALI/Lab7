@@ -110,6 +110,11 @@ public class Client {
                 String name = listOfCommand.remove(0);
                 ClientData clientData = commandsManager.check(name, listOfCommand);
                 //here commandData ready for sending
+                if (name.equals("exit")){
+                    sendData(clientData);
+                    printer.outPrintln("By!");
+                    System.exit(0);
+                }
                 pull.add(clientData);
                 ServerData answer = sendThenReceive(clientData);
                 pull.remove(clientData);
