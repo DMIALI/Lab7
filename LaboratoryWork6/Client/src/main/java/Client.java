@@ -1,6 +1,8 @@
 import ManagerOfCommands.CommandData.ClientData;
+import ManagerOfCommands.CommandData.ServerData;
 import ManagerOfCommands.CommandsManager;
 import Utils.Printer;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
@@ -39,7 +41,7 @@ public class Client {
     private void testSend() {
         ClientData clientData = new ClientData();
         clientData.setName("checkAccess");
-        ClientData ans = sendThenReceive(clientData);
+        ServerData ans = sendThenReceive(clientData);
     }
 
     private void sendData(ClientData clientData) throws IOException {
@@ -47,26 +49,25 @@ public class Client {
         datagramSocket.send(datagramPacket);
     }
 
-    private ClientData receiveData() throws IOException {
+    private ServerData receiveData() throws IOException {
         byte[] buffer = new byte[1024];
         DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
         datagramSocket.receive(datagramPacket);
         return deserialize(datagramPacket);
     }
 
-    public ClientData deserialize (DatagramPacket datagramPacket) throws IOException {
-        try {
-            ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(datagramPacket.getData());
-            ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-            return (ClientData) objectInputStream.readObject();
-        } catch (ClassNotFoundException e){
-            printer.errPrintln("Не получилось десериализовать данные :(");
-            return null;
-        }
+    public ServerData deserialize (DatagramPacket datagramPacket) throws IOException {
+        /*ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(datagramPacket.getData());
+        ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
+        return (ClientData) objectInputStream.readObject();*/
+        InputStream inputStream = new ByteArrayInputStream(datagramPacket.getData());
+        TypeReference<ServerData> mapType = new TypeReference<ServerData>() {};
+        ServerData serverData = (new ObjectMapper()).readValue(inputStream, mapType);
+        return  serverData;
     }
 
-    public ClientData sendThenReceive(ClientData clientData){
-        ClientData answer = null;
+    public ServerData sendThenReceive(ClientData clientData){
+        ServerData answer = null;
         while (true){
             int retries = 10;
             boolean receivedResponse = false;
@@ -108,11 +109,11 @@ public class Client {
                 ClientData clientData = commandsManager.check(name, listOfCommand);
                 //here commandData ready for sending
 
-                ClientData answer = sendThenReceive(clientData);
+                ServerData answer = sendThenReceive(clientData);
                 if (answer == null){
                     //add pull
                 }
-                printer.outPrintln(answer.getCounter().toString());
+                printer.outPrintln(answer.counter().toString());
             } catch (NullPointerException e) {
                 printer.errPrintln("Команда не найдена");
             }

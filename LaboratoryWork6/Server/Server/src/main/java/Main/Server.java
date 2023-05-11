@@ -2,6 +2,7 @@ package Main;
 
 import CommandData.ClientData;
 import CommandData.InputCommandData;
+import CommandData.PrintType;
 import CommandData.ServerData;
 import DataTypes.MusicBand;
 import Utils.Client;
@@ -33,8 +34,14 @@ public class Server {
                 System.out.println(port);
                 Client client = clientManager.getClient(inetAddress, port);
                 ClientData clientData = handle(datagramPacket);
+                System.out.println(clientData.getCounter());
+                System.out.println(clientData.getName());
+                if (Objects.equals(clientData.getName(), "checkAccess")){
+                    System.out.println("sfsfwwf");
+                    send(new ServerData(1L, "checkAccess", PrintType.PRINT), client);
+                }
                 checkClientData(clientData, client);
-                InputCommandData inputCommandData = new InputCommandData(collectionManager,client, printer, clientData, new HashMap<>());
+                InputCommandData inputCommandData = new InputCommandData(collectionManager,client, printer, clientData);
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
