@@ -11,7 +11,7 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class ClientData implements Comparable {
     private String name;
-    private ArrayList<String> args;
+    private ArrayList<Object> args;
     private static Long number = 0L;
     private final Long counter;
     public ClientData() {

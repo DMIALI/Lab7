@@ -28,27 +28,9 @@ public class ControlCenter {
         commandMap.put("shuffle", new Shuffle());
         commandMap.put("update", new Update());
     }
-
-    public void Start(Printer printer) throws IOException {
-        /*Scanner scanner = new Scanner(System.in);
-        CollectionManager collectionManager = new CollectionManager(path, scanner,printer);
-        printer.outPrint("Введите команду: ");
-        String command = scanner.nextLine();
-        while (true) {
-            try {
-                ArrayList<String> listOfCommand = new ArrayList<String>();
-                Collections.addAll(listOfCommand, command.split(" "));
-                String name = listOfCommand.remove(0);
-                commandMap.get(inputHandler(name)).execute(new InputCommandData(collectionManager,scanner, printer, listOfCommand, commandMap));
-            } catch (NullPointerException e) {
-                printer.errPrintln("Команда не найдена");
-            }
-            printer.outPrint("Введите команду: ");
-            command = scanner.nextLine();
-
-        }*/
+    private void executeCommand(InputCommandData inputCommandData){
+        commandMap.get(inputHandler(inputCommandData.clientData().getName())).execute(inputCommandData);
     }
-
     private String inputHandler(String input) {
         StringBuilder name = new StringBuilder();
         for (String word : input.split("_")) {
