@@ -127,6 +127,8 @@ public class Client {
                 //printer.outPrintln(answer.counter().toString());
             }  catch (NullPointerException e){
                 printer.errPrintln("Команда не найдена");
+            } catch (RuntimeException e){
+                printer.errPrintln("Попробуйте еще раз");
             } catch ( IOException e) {
 
                 printer.errPrintln("Не получилось отправить/получить данные");

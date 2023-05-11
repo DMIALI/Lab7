@@ -19,8 +19,12 @@ public class CommandsManager {
         commandMap.put("remove_by_id", new RemoveById());
     }
 
-    public ClientData check (String name, ArrayList<String> listOfCommand) throws NullPointerException{
-        return commandMap.get(inputHandler(name)).processing(name, listOfCommand);
+    public ClientData check (String name, ArrayList<String> listOfCommand) throws NullPointerException, RuntimeException{
+        ClientData clientData =  commandMap.get(inputHandler(name)).processing(name, listOfCommand);
+        if (clientData != null){
+            return  clientData;
+        }
+        throw new RuntimeException();
         //printer.errPrintln(commandMap.get(inputHandler(name)).processing(name, listOfCommand).getNumber().toString());
     }
 
