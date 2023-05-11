@@ -1,6 +1,6 @@
 package ManagerOfCommands.Commands;
 
-import ManagerOfCommands.CommandData.CommandData;
+import ManagerOfCommands.CommandData.ClientData;
 
 import java.util.ArrayList;
 
@@ -10,5 +10,5 @@ public abstract class Command {
     }
 
 //    public abstract void processing(InputCommandData input);
-    public abstract CommandData processing(String title, ArrayList<String> args);
+    public abstract ClientData processing(String title, ArrayList<String> args);
 }

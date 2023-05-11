@@ -1,6 +1,6 @@
 package Utils;
 
-import ManagerOfCommands.CommandData.CommandData;
+import ManagerOfCommands.CommandData.ClientData;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -23,10 +23,10 @@ public class Message {
         return null;
     }
 
-    public void serialize (CommandData commandData) throws IOException {
+    public void serialize (ClientData clientData) throws IOException {
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-        objectOutputStream.writeObject(commandData);
+        objectOutputStream.writeObject(clientData);
         byte[] buffer = byteArrayOutputStream.toByteArray();
         DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
     }

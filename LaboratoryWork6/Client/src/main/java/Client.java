@@ -1,6 +1,7 @@
-import ManagerOfCommands.CommandData.CommandData;
+import ManagerOfCommands.CommandData.ClientData;
 import ManagerOfCommands.CommandsManager;
 import Utils.Printer;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.net.*;
@@ -36,42 +37,42 @@ public class Client {
     }
     // хз зачем
     private void testSend() {
-        CommandData commandData = new CommandData();
-        commandData.setName("checkAccess");
-        CommandData ans = sendThenReceive(commandData);
+        ClientData clientData = new ClientData();
+        clientData.setName("checkAccess");
+        ClientData ans = sendThenReceive(clientData);
     }
 
-    private void sendData(CommandData commandData) throws IOException {
-        DatagramPacket datagramPacket = serialize(commandData);
+    private void sendData(ClientData clientData) throws IOException {
+        DatagramPacket datagramPacket = serialize(clientData);
         datagramSocket.send(datagramPacket);
     }
 
-    private CommandData receiveData() throws IOException {
+    private ClientData receiveData() throws IOException {
         byte[] buffer = new byte[1024];
         DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
         datagramSocket.receive(datagramPacket);
         return deserialize(datagramPacket);
     }
 
-    public CommandData deserialize (DatagramPacket datagramPacket) throws IOException {
+    public ClientData deserialize (DatagramPacket datagramPacket) throws IOException {
         try {
             ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(datagramPacket.getData());
             ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-            return (CommandData) objectInputStream.readObject();
+            return (ClientData) objectInputStream.readObject();
         } catch (ClassNotFoundException e){
             printer.errPrintln("Не получилось десериализовать данные :(");
             return null;
         }
     }
 
-    public CommandData sendThenReceive(CommandData commandData){
-        CommandData answer = null;
+    public ClientData sendThenReceive(ClientData clientData){
+        ClientData answer = null;
         while (true){
             int retries = 10;
             boolean receivedResponse = false;
             while(!receivedResponse && retries > 0) {
                 try {
-                    sendData(commandData);
+                    sendData(clientData);
                     answer = receiveData();
                     receivedResponse = true;
                 } catch (SocketTimeoutException e) {
@@ -104,14 +105,14 @@ public class Client {
                 ArrayList<String> listOfCommand = new ArrayList<String>();
                 Collections.addAll(listOfCommand, command.split(" "));
                 String name = listOfCommand.remove(0);
-                CommandData commandData = commandsManager.check(name, listOfCommand);
+                ClientData clientData = commandsManager.check(name, listOfCommand);
                 //here commandData ready for sending
 
-                CommandData answer = sendThenReceive(commandData);
+                ClientData answer = sendThenReceive(clientData);
                 if (answer == null){
                     //add pull
                 }
-                printer.outPrintln(answer.getNumber().toString());
+                printer.outPrintln(answer.getCounter().toString());
             } catch (NullPointerException e) {
                 printer.errPrintln("Команда не найдена");
             }
@@ -119,11 +120,12 @@ public class Client {
             command = scanner.nextLine();
         }
     }
-    public DatagramPacket serialize (CommandData commandData) throws IOException {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    public DatagramPacket serialize (ClientData clientData) throws IOException {
+        /*ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
         objectOutputStream.writeObject(commandData);
-        byte[] buffer = byteArrayOutputStream.toByteArray();
+        byte[] buffer = byteArrayOutputStream.toByteArray();*/
+        byte[] buffer = (new ObjectMapper()).writeValueAsString(clientData).getBytes();
         return new DatagramPacket(buffer, buffer.length);
     }
     public static void main(String[] args) throws SocketException {

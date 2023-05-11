@@ -1,14 +1,10 @@
 package ManagerOfCommands;
 
+import ManagerOfCommands.CommandData.ClientData;
 import ManagerOfCommands.Commands.*;
-import Utils.Printer;
-import ManagerOfCommands.CommandData.CommandData;
 
-import java.io.*;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.Scanner;
 
 public class CommandsManager {
     private final HashMap<String, Command> commandMap = new HashMap<>();
@@ -22,7 +18,7 @@ public class CommandsManager {
         commandMap.put("shuffle", new Shuffle());
     }
 
-    public CommandData check (String name, ArrayList<String> listOfCommand) throws NullPointerException{
+    public ClientData check (String name, ArrayList<String> listOfCommand) throws NullPointerException{
         return commandMap.get(inputHandler(name)).processing(name, listOfCommand);
         //printer.errPrintln(commandMap.get(inputHandler(name)).processing(name, listOfCommand).getNumber().toString());
     }

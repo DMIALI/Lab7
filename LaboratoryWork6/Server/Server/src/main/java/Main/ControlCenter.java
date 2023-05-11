@@ -30,7 +30,7 @@ public class ControlCenter {
     }
 
     public void Start(Printer printer) throws IOException {
-        Scanner scanner = new Scanner(System.in);
+        /*Scanner scanner = new Scanner(System.in);
         CollectionManager collectionManager = new CollectionManager(path, scanner,printer);
         printer.outPrint("Введите команду: ");
         String command = scanner.nextLine();
@@ -46,7 +46,7 @@ public class ControlCenter {
             printer.outPrint("Введите команду: ");
             command = scanner.nextLine();
 
-        }
+        }*/
     }
 
     private String inputHandler(String input) {

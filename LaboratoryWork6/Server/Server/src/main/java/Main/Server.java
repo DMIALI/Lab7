@@ -3,14 +3,15 @@ package Main;
 import CommandData.ClientData;
 import CommandData.InputCommandData;
 import CommandData.ServerData;
+import DataTypes.MusicBand;
 import Utils.Client;
 import Utils.Printer;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.net.*;
-import java.util.Objects;
-import java.util.Base64;
-import java.util.Scanner;
+import java.util.*;
 
 public class Server {
 
@@ -29,10 +30,11 @@ public class Server {
                 datagramSocket.receive(datagramPacket);
                 InetAddress inetAddress = datagramPacket.getAddress();
                 int port = datagramPacket.getPort();
+                System.out.println(port);
                 Client client = clientManager.getClient(inetAddress, port);
                 ClientData clientData = handle(datagramPacket);
                 checkClientData(clientData, client);
-                InputCommandData inputCommandData = new InputCommandData(collectionManager,client, printer, clientData, );
+                InputCommandData inputCommandData = new InputCommandData(collectionManager,client, printer, clientData, new HashMap<>());
             } catch (IOException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
@@ -40,8 +42,12 @@ public class Server {
     }
     public ClientData handle(DatagramPacket datagramPacket) throws IOException, ClassNotFoundException {
         InputStream inputStream = new ByteArrayInputStream(datagramPacket.getData());
+        TypeReference<ClientData> mapType = new TypeReference<ClientData>() {};
+        ClientData clientData = (new ObjectMapper()).readValue(inputStream, mapType);
+        /*InputStream inputStream = new ByteArrayInputStream(datagramPacket.getData());
         ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-        return (ClientData) objectInputStream.readObject();
+        ClientData clientData =  (ClientData) objectInputStream.readObject();*/
+        return clientData;
     }
     public void checkClientData(ClientData clientData, Client client) throws IOException {
         if (clientData.getCounter() == client.getDatagramCounter()){
@@ -55,11 +61,12 @@ public class Server {
         }
     }
     public void send(ServerData serverData, Client client) throws IOException {
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        /*ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
         objectOutputStream.writeObject(serverData);
         objectOutputStream.close();
-        byte[] sendingDataBuffer  = Base64.getEncoder().encodeToString(outputStream.toByteArray()).getBytes();
+        byte[] sendingDataBuffer  = Base64.getEncoder().encodeToString(outputStream.toByteArray()).getBytes();*/
+        byte[] sendingDataBuffer = (new ObjectMapper()).writeValueAsString(serverData).getBytes();
         DatagramPacket datagramPacket = new DatagramPacket(sendingDataBuffer, sendingDataBuffer.length, client.getInetAddress(), client.getPort());
         try {
             datagramSocket.send(datagramPacket);
@@ -73,8 +80,8 @@ public class Server {
         Server server = new Server(datagramSocket);
         ClientManager clientManager = new ClientManager();
         Scanner scanner = new Scanner(System.in);
-        CollectionManager collectionManager = new CollectionManager("data.json", scanner);
+        CollectionManager collectionManager = new CollectionManager("C:\\Users\\фвьшт\\IdeaProjects\\Java-Programming\\LaboratoryWork6\\Server\\Server\\src\\main\\java\\Main\\data.json", scanner);
         Printer printer = new Printer();
-        server.receiveThenSend(clientManager, collectionManager);
+        server.receiveThenSend(clientManager, collectionManager, printer);
     }
 }

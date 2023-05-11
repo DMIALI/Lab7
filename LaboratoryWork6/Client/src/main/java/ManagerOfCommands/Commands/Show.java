@@ -1,15 +1,15 @@
 package ManagerOfCommands.Commands;
 
-import ManagerOfCommands.CommandData.CommandData;
+import ManagerOfCommands.CommandData.ClientData;
 
 import java.util.ArrayList;
 
 public class Show extends Command{
     @Override
-    public CommandData processing(String title, ArrayList<String> args) {
-        CommandData commandData = new CommandData();
-        commandData.setName("show");
-        commandData.setArgs(null);
-        return commandData;
+    public ClientData processing(String title, ArrayList<String> args) {
+        ClientData clientData = new ClientData();
+        clientData.setName("show");
+        clientData.setArgs(null);
+        return clientData;
     }
 }
