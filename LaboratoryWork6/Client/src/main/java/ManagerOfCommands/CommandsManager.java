@@ -16,6 +16,7 @@ public class CommandsManager {
         commandMap.put("reorder", new Reorder());
         commandMap.put("show", new Show());
         commandMap.put("shuffle", new Shuffle());
+        commandMap.put("remove_by_id", new RemoveById());
     }
 
     public ClientData check (String name, ArrayList<String> listOfCommand) throws NullPointerException{

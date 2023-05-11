@@ -1,5 +1,7 @@
 package Utils;
 
+import ManagerOfCommands.CommandData.PrintType;
+
 /**
  * Class that print information in console
  */
@@ -10,6 +12,17 @@ public class Printer {
      */
     public void outPrintln(String out){
         System.out.println(out);
+    }
+    public void out(String out, PrintType printType){
+        if (printType == PrintType.PRINT){
+            outPrint(out);
+        }
+        else if (printType == PrintType.PRINTLN){
+            outPrintln(out);
+        }
+        else if (printType == PrintType.ERRPRINTLN){
+            errPrintln(out);
+        }
     }
 
     /**

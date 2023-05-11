@@ -9,14 +9,16 @@ import java.io.*;
 import java.net.*;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.PriorityQueue;
 import java.util.Scanner;
 
 
 public class Client {
     private static Printer printer = new Printer();
-    private Scanner scanner = new Scanner(System.in);
+    private static Scanner scanner = new Scanner(System.in);
     private DatagramSocket datagramSocket = new DatagramSocket();
     private static int SERVER_PORT = 1408;
+    private PriorityQueue<ClientData> pull = new PriorityQueue<ClientData>();
     private byte[] buffer;
 
 
@@ -25,23 +27,34 @@ public class Client {
     }
 
 
-    public void connection(){
+    public void connection() throws UnknownHostException {
         try{
             datagramSocket.connect(InetAddress.getByName("localhost"), SERVER_PORT);
             datagramSocket.setSoTimeout(10_000);
-            testSend();
-            printer.outPrintln("Подключение успешно выполнено!");
+            try {
+                testSend();
+                printer.outPrintln("Подключение успешно выполнено!");
+            } catch (IOException e) {
+                printer.errPrintln("Подключение не было установленно");
+                throw new UnknownHostException();
+            }
+
+        }catch (UnknownHostException e) {
+            printer.errPrintln("Сервера пока не существует :(");
+            throw e;
         } catch (SocketException e) {
-            throw new RuntimeException(e);
-        } catch (UnknownHostException e) {
             throw new RuntimeException(e);
         }
     }
     // хз зачем
-    private void testSend() {
-        ClientData clientData = new ClientData();
-        clientData.setName("checkAccess");
-        ServerData ans = sendThenReceive(clientData);
+    private void testSend() throws IOException {
+        try{
+            ClientData clientData = new ClientData();
+            clientData.setName("checkAccess");
+            ServerData ans = sendThenReceive(clientData);
+        } catch (IOException e){
+            throw e;
+        }
     }
 
     private void sendData(ClientData clientData) throws IOException {
@@ -65,36 +78,25 @@ public class Client {
         ServerData serverData = (new ObjectMapper()).readValue(inputStream, mapType);
         return  serverData;
     }
+    public ServerData sendThenReceive(ClientData clientData) throws IOException {
+        try{
+            sendData(clientData);
+            return receiveData();
 
-    public ServerData sendThenReceive(ClientData clientData){
-        ServerData answer = null;
-        while (true){
-            int retries = 10;
-            boolean receivedResponse = false;
-            while(!receivedResponse && retries > 0) {
-                try {
-                    sendData(clientData);
-                    answer = receiveData();
-                    receivedResponse = true;
-                } catch (SocketTimeoutException e) {
-                    retries--;
-                    printer.errPrintln("Попробую отправить данные в " + retries + " раз");
-                } catch (IOException e) {
-                    retries--;
-                    printer.errPrintln("Не получилось десериализовать данные :(");
-                }
-            }
-            if(receivedResponse || retries == 0){
-                printer.outPrintln("Дальнейшие действия: \n continue - продолжить отправлять эту команду \n try - продолжить вводить команды" );
-                if (scanner.next().equals("try")){
-                    return null;
-                }
-
-            }
-            return answer;
+        } catch (IOException e) {
+            throw e;
         }
     }
-
+    public void pullSender(){
+        for (ClientData clientData : pull) {
+            try {
+                ServerData ans = sendThenReceive(clientData);
+                printer.out(ans.message(), ans.printType());
+            } catch (IOException e) {
+                printer.errPrintln("Снова не получилось отправить данные :(");
+            }
+        }
+    }
     public void start () {
 
         CommandsManager commandsManager = new CommandsManager();
@@ -108,14 +110,26 @@ public class Client {
                 String name = listOfCommand.remove(0);
                 ClientData clientData = commandsManager.check(name, listOfCommand);
                 //here commandData ready for sending
-
+                pull.add(clientData);
                 ServerData answer = sendThenReceive(clientData);
-                if (answer == null){
-                    //add pull
+                pull.remove(clientData);
+                printer.out(answer.message(), answer.printType());
+                if (pull.size() > 0){
+                    printer.outPrintln("Хотите отправить все не дошедшие ранее команды? [y/n]");
+                    String ans = scanner.next();
+                    if (ans.equals("yes") || ans.equals("y")){
+                        pullSender();
+                    }else{
+                        pull.clear();
+                    }
                 }
-                printer.outPrintln(answer.counter().toString());
-            } catch (NullPointerException e) {
+
+                //printer.outPrintln(answer.counter().toString());
+            }  catch (NullPointerException e){
                 printer.errPrintln("Команда не найдена");
+            } catch ( IOException e) {
+
+                printer.errPrintln("Не получилось отправить/получить данные");
             }
             printer.outPrint("Введите команду: ");
             command = scanner.nextLine();
@@ -134,7 +148,19 @@ public class Client {
         DatagramSocket datagramSocket = new DatagramSocket();
         Client client = new Client(datagramSocket);
         printer.outPrintln("Пытаюсь подключиться к серверу, пожалуйста подождите...");
-        client.connection();
-        client.start();
+        while(true){
+
+            try {
+                client.connection();
+                client.start();
+                break;
+            } catch (UnknownHostException e) {
+                printer.outPrintln("Хотите попробывать подключиться занова? [y/n]");
+                String ans = scanner.nextLine();
+                if (ans.equals("no") || ans.equals("n")){
+                    break;
+                }
+            }
+        }
     }
 }
