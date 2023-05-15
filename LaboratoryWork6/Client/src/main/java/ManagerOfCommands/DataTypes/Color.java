@@ -1,4 +1,4 @@
-package DataTypes;
+package ManagerOfCommands.DataTypes;
 
 public enum Color {
     GREEN,

@@ -1,4 +1,4 @@
-package DataTypes;
+package ManagerOfCommands.DataTypes;
 
 import lombok.*;
 @ToString(includeFieldNames = true)
