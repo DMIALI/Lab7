@@ -35,7 +35,10 @@ public class Server {
                 int port = datagramPacket.getPort();
                 ClientData clientData = handle(datagramPacket);
                 Client client = clientManager.getClient(inetAddress, port, clientData.getCounter());
+                System.out.print("Ожидалось:");
                 System.out.println(clientData.getCounter());
+                System.out.print("Получено:");
+                System.out.println(client.getDatagramCounter());
                 System.out.println(clientData.getName());
                 System.out.println(clientManager.getClients().toString());
                 if (checkAccess(clientData, client)){
@@ -72,6 +75,7 @@ public class Server {
 
     public boolean checkAccess(ClientData clientData, Client client) throws IOException {
         if (Objects.equals(clientData.getName(), "checkAccess")){
+            client.increaseCounter();
             send(new ServerData(1L, "checkAccess", PrintType.PRINT), client);
             return true;
         }
