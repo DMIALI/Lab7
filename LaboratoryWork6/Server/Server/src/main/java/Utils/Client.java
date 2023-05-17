@@ -18,10 +18,10 @@ public class Client{
     //PriorityQueue<CommandData> commandsQueue = new PriorityQueue<>();
     @Setter
     ServerData latestServerData;
-    public Client(InetAddress InetAddress, int Port){
+    public Client(InetAddress InetAddress, int Port, long counter){
         this.inetAddress = InetAddress;
         this.port = Port;
-        datagramCounter = 1;
+        datagramCounter = counter;
         latestServerData = new ServerData(0L, "", PrintType.PRINT);
     }
     public void increaseCounter(){

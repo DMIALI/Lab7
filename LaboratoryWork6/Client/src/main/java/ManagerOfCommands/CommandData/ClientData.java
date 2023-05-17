@@ -1,5 +1,6 @@
 package ManagerOfCommands.CommandData;
 
+import ManagerOfCommands.DataTypes.MusicBand;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
@@ -12,10 +13,14 @@ import java.util.ArrayList;
 @AllArgsConstructor
 public class ClientData implements Comparable {
     private String name;
-    private ArrayList<Object> args;
+    private String arg;
+    private MusicBand musicBand;
     private static Long number = 0L;
     private final Long counter;
     public ClientData() {
+        if (number.equals(Long.MAX_VALUE)){
+            number = 0L;
+        }
         number++;
         counter = number;
     }

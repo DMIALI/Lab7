@@ -1,25 +1,21 @@
 package Commands;
 
 import CommandData.InputCommandData;
+import Utils.Printer;
+
+import java.util.HashMap;
+import java.util.Set;
 
 public class Help extends Command {
     @Override
     public void execute(InputCommandData input) {
-        input.printer().outPrintln("add - добавить новый элемент в коллекцию\n" +
-                "remove_at - удалить элемент, находящийся в заданной позиции коллекции (index)\n" +
-                "execute_script - считать и исполнить скрипт из указанного файла. В скрипте содержатся команды в таком же виде, в котором их вводит пользователь в интерактивном режиме.\n" +
-                "clear - очистить коллекцию\n" +
-                "save - сохранить коллекцию в файл\n" +
-                "show - вывести в стандартный поток вывода все элементы коллекции в строковом представлении\n" +
-                "remove_any_by_front_man - удалить из коллекции один элемент, значение поля frontMan которого эквивалентно заданному\n" +
-                "remove_by_id - удалить элемент из коллекции по его id\n" +
-                "update - обновить значение элемента коллекции, id которого равен заданному\n" +
-                "reorder - отсортировать коллекцию в порядке, обратном нынешнему\n" +
-                "exit - завершить программу (без сохранения в файл)\n" +
-                "help - вывести справку по доступным командам\n" +
-                "filter_by_albums_count - вывести элементы, значение поля albumsCount которых равно заданном\n" +
-                "count_by_number_of_participants - вывести количество элементов, значение поля numberOfParticipants которых равно заданному\n" +
-                "shuffle - перемешать элементы коллекции в случайном порядке\n" +
-                "info - вывести в стандартный поток вывода информацию о коллекции (тип, дата инициализации, количество элементов и т.д.)\n", input.client(), input.clientData());
+        Printer printer = input.printer();
+        HashMap<String, Command> commandMap = input.commandMap();
+        StringBuilder out = new StringBuilder();
+        Set<String> keys = commandMap.keySet();
+        for (String key:keys){
+            out.append(key).append(" - ").append(commandMap.get(key).getFunctionality()).append("\n");
+        }
+        printer.outPrint(out.toString(), input.client(), input.clientData());
     }
 }

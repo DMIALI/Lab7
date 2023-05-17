@@ -9,7 +9,6 @@ public class Show extends Command{
     public ClientData processing(String title, ArrayList<String> args) {
         ClientData clientData = new ClientData();
         clientData.setName("show");
-        clientData.setArgs(null);
         return clientData;
     }
 }

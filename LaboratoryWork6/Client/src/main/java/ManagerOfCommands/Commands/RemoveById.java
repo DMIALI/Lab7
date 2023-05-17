@@ -11,12 +11,10 @@ public class RemoveById extends Command{
         ClientData clientData = new ClientData();
         clientData.setName("remove_by_id");
         if(args.size() == 1 && PrimitiveTypeAsserter.checkLong(args.get(0))) {
-            ArrayList<Object> argument = new ArrayList<>();
-            argument.add((Object)Integer.parseInt(args.get(0)));
-            clientData.setArgs(argument);
+            clientData.setArg(args.get(0));
             return clientData;
         }else{
-            printer.errPrintln("Введены некоректные данные");
+            printer.errPrintln("Введены некорректные данные");
             return null;
         }
 

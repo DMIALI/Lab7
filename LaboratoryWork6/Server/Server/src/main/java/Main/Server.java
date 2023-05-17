@@ -19,7 +19,7 @@ public class Server {
     private ClientManager clientManager;
 
     private DatagramSocket datagramSocket;
-    private byte[] buffer = new byte[256];
+    private byte[] buffer = new byte[4096];
     private static int PORT = 1408;
 
     public Server (DatagramSocket datagramSocket){
@@ -33,15 +33,15 @@ public class Server {
                 datagramSocket.receive(datagramPacket);
                 InetAddress inetAddress = datagramPacket.getAddress();
                 int port = datagramPacket.getPort();
-                Client client = clientManager.getClient(inetAddress, port);
                 ClientData clientData = handle(datagramPacket);
-                System.out.println(port);
+                Client client = clientManager.getClient(inetAddress, port, clientData.getCounter());
                 System.out.println(clientData.getCounter());
                 System.out.println(clientData.getName());
+                System.out.println(clientManager.getClients().toString());
                 if (checkAccess(clientData, client)){
                     continue;
                 }
-                //checkClientData(clientData, client);
+                checkClientData(clientData, client);
                 InputCommandData inputCommandData = new InputCommandData(collectionManager,client, printer, clientData, controlCenter.getCommandMap());
                 controlCenter.executeCommand(inputCommandData);
             } catch (IOException | ClassNotFoundException e) {
@@ -102,7 +102,7 @@ public class Server {
         Server server = new Server(datagramSocket);
         server.clientManager = new ClientManager();
         Scanner scanner = new Scanner(System.in);
-        CollectionManager collectionManager = new CollectionManager("data.json", scanner);
+        CollectionManager collectionManager = new CollectionManager("C:\\Users\\фвьшт\\IdeaProjects\\Lab6\\LaboratoryWork6\\Server\\Server\\src\\main\\java\\Main\\data.json", scanner);
         Printer printer = new Printer(server);
         ControlCenter controlCenter = new ControlCenter();
         server.receiveThenSend(collectionManager, printer, controlCenter);

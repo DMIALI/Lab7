@@ -11,8 +11,8 @@ public class RemoveAt extends Command {
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();
         Printer printer = input.printer();
-        ArrayList<Object> args = input.clientData().getArgs();
-        int index = Integer.parseInt((String) args.get(0));
+        String arg = input.clientData().getArg();
+        int index = Integer.parseInt(arg);
         collectionManager.getMusicBands().remove(index);
         collectionManager.getIdManager().remove((long) index);
         printer.outPrintln("Элемент успешно удален =)", input.client(), input.clientData());

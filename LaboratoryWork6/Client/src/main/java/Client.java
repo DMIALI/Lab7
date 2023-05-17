@@ -63,7 +63,7 @@ public class Client {
     }
 
     private ServerData receiveData() throws IOException {
-        byte[] buffer = new byte[1024];
+        byte[] buffer = new byte[4096];
         DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
         datagramSocket.receive(datagramPacket);
         return deserialize(datagramPacket);

@@ -11,12 +11,10 @@ public class ExecuteScript extends Command{
         ClientData clientData = new ClientData();
         clientData.setName("execute_script");
         if(args.size() == 1 ) {
-            ArrayList<Object> argument = new ArrayList<>();
-            argument.add((Object)(args.get(0)));
-            clientData.setArgs(argument);
+            clientData.setArg(args.get(0));
             return clientData;
         }else{
-            printer.errPrintln("Введены некоректные данные");
+            printer.errPrintln("Введены некорректные данные");
             return null;
         }
     }

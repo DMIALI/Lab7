@@ -15,42 +15,17 @@ public class Add extends Command{
     @Override
     public ClientData processing(String title, ArrayList<String> args) {
         printer.outPrintln("Создание новой музыкальной группы");
-        Object name = receiveName(scanner, printer);
-        Coordinates coordinates = receiveCoordinates(scanner, printer);
-        Object x_coordinates = coordinates.getX().toString();
-        Object y_coordinates = Double.valueOf(coordinates.getY()).toString();
-        Object date = new Date();
-        Object numberOfParticipants = Long.valueOf(receiveNumberOfParticipants(scanner, printer)).toString();
-        Object albumsCount = Long.valueOf(receiveAlbumsCount(scanner, printer)).toString();
-        Object musicGenre = receiveMusicGenre(scanner, printer);
-        Person person = receivePerson(scanner, printer);
-        Object personName = person.getName();
-        Object personPassportID = person.getPassportID();
-        Object personHairColor = person.getHairColor();
-        Object personCountry = person.getNationality();
-        Object personLocationX = Integer.valueOf(person.getLocation().getX()).toString();
-        Object personLocationY = person.getLocation().getY().toString();
-        Object personLocationZ = Long.valueOf(person.getLocation().getZ()).toString();
-        Object personLocationName = person.getLocation().getName();
-        ArrayList<Object> res = new ArrayList<Object>();
-        res.add(name);
-        res.add(x_coordinates);
-        res.add(y_coordinates);
-        res.add(date);
-        res.add(numberOfParticipants);
-        res.add(albumsCount);
-        res.add(musicGenre);
-        res.add(personName);
-        res.add(personPassportID);
-        res.add(personHairColor);
-        res.add(personCountry);
-        res.add(personLocationX);
-        res.add(personLocationY);
-        res.add(personLocationZ);
-        res.add(personLocationName);
+        MusicBand musicBand = new MusicBand();
+        musicBand.setName(receiveName(scanner, printer));
+        musicBand.setCoordinates(receiveCoordinates(scanner, printer));
+        musicBand.setCreationDate(new Date());
+        musicBand.setNumberOfParticipants(receiveNumberOfParticipants(scanner, printer));
+        musicBand.setAlbumsCount(receiveAlbumsCount(scanner, printer));
+        musicBand.setGenre(receiveMusicGenre(scanner, printer));
+        musicBand.setFrontMan(receivePerson(scanner, printer));
         ClientData clientData = new ClientData();
         clientData.setName("add");
-        clientData.setArgs(res);
+        clientData.setMusicBand(musicBand);
         return clientData;
     }
 

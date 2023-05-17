@@ -5,17 +5,16 @@ import DataTypes.MusicBand;
 import Main.CollectionManager;
 import Utils.Printer;
 
-import java.util.ArrayList;
-
 public class RemoveAnyByFrontMan extends Command {
     @Override
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();
         Printer printer = input.printer();
-        ArrayList<Object> args = input.clientData().getArgs();
+        String arg = input.clientData().getArg();
         for(MusicBand musicBand: collectionManager.getMusicBands()){
-            if(musicBand.getFrontMan().getName().equals(args.get(0))){
+            if(musicBand.getFrontMan().getName().equals(arg)){
                 collectionManager.getMusicBands().remove(musicBand);
+                collectionManager.getIdManager().remove(musicBand.getId());
                 printer.outPrintln("Элемент успешно удален =)", input.client(), input.clientData());
                 return;
             }

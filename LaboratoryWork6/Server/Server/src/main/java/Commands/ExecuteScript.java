@@ -15,39 +15,35 @@ import java.util.HashMap;
 public class ExecuteScript extends Command {
     @Override
     public void execute(InputCommandData input) {
-            ArrayList<Object> args = input.clientData().getArgs();
+            String arg = input.clientData().getArg();
             Printer printer = input.printer();
             HashMap<String, Command> commandMap = input.commandMap();
             CollectionManager collectionManager = input.collectionManager();
             ArrayList<String> scripts = new ArrayList<>();
-            if (args.size() < 1) {
-                printer.errPrintln("Отсутствуют необходимые аргументы (путь к файлу)", input.client(), input.clientData());
-            } else {
-                ArrayList<ArrayList<Object>> commands = new ArrayList<>();
-                addCommands(args, printer, commandMap, commands, scripts, input);
-                for (ArrayList<Object> i : commands) {
-                    String name = (String) i.remove(0);
-                    commandMap.get(name).execute(new InputCommandData(collectionManager, input.client(), printer, input.clientData(), input.commandMap()));
-                }
+            ArrayList<ArrayList<String>> commands = new ArrayList<>();
+            addCommands(arg, printer, commandMap, commands, scripts, input);
+            for (ArrayList<String> i : commands) {
+                String name = i.remove(0);
+                commandMap.get(name).execute(new InputCommandData(collectionManager, input.client(), printer, input.clientData(), input.commandMap()));
             }
     }
-        private void addCommands(ArrayList<Object> args, Printer printer, HashMap<String, Command> commandMap, ArrayList<ArrayList<Object>> commands, ArrayList<String> scripts, InputCommandData input){
+        private void addCommands(String arg, Printer printer, HashMap<String, Command> commandMap, ArrayList<ArrayList<String>> commands, ArrayList<String> scripts, InputCommandData input){
             try {
-                File file = new File((String) args.get(0));
+                File file = new File(arg);
                 BufferedReader bufferedReader = new BufferedReader(new FileReader(file));
                 String command;
                 while ((command = bufferedReader.readLine()) != null) {
-                    ArrayList<Object> listOfCommand = new ArrayList<Object>();
+                    ArrayList<String> listOfCommand = new ArrayList<String>();
                     Collections.addAll(listOfCommand, command.split(" "));
-                    String name = (String) listOfCommand.get(0);
+                    String name = listOfCommand.get(0);
                     try {
                         if (name.equals("execute_script")) {
                             if (scripts.contains(listOfCommand.get(1))) {
                                 printer.errPrintln("Скрипт " + listOfCommand.get(1) + " вызывается рекурсивно. Повторное исполнение не будет произведено.", input.client(), input.clientData());
                             } else {
-                                scripts.add((String) listOfCommand.get(1));
+                                scripts.add(listOfCommand.get(1));
                                 listOfCommand.remove(0);
-                                addCommands(listOfCommand, printer, commandMap, commands, scripts, input);
+                                addCommands(listOfCommand.get(0), printer, commandMap, commands, scripts, input);
                             }
                         }
                         else{
