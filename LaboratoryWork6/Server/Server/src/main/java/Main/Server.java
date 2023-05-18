@@ -35,9 +35,9 @@ public class Server {
                 int port = datagramPacket.getPort();
                 ClientData clientData = handle(datagramPacket);
                 Client client = clientManager.getClient(inetAddress, port, clientData.getCounter());
-                System.out.print("Ожидалось:");
-                System.out.println(clientData.getCounter());
                 System.out.print("Получено:");
+                System.out.println(clientData.getCounter());
+                System.out.print("Ожидалось:");
                 System.out.println(client.getDatagramCounter());
                 System.out.println(clientData.getName());
                 System.out.println(clientManager.getClients().toString());
@@ -82,11 +82,7 @@ public class Server {
         return false;
     }
     public void send(ServerData serverData, Client client) {
-        /*ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(outputStream);
-        objectOutputStream.writeObject(serverData);
-        objectOutputStream.close();
-        byte[] sendingDataBuffer  = Base64.getEncoder().encodeToString(outputStream.toByteArray()).getBytes();*/
+
         try{
             byte[] sendingDataBuffer = (new ObjectMapper()).writeValueAsString(serverData).getBytes();
             DatagramPacket datagramPacket = new DatagramPacket(sendingDataBuffer, sendingDataBuffer.length, client.getInetAddress(), client.getPort());

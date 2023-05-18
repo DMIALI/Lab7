@@ -46,7 +46,7 @@ public class Client {
             throw new RuntimeException(e);
         }
     }
-    // хз зачем
+
     private void testSend() throws IOException {
         try{
             ClientData clientData = new ClientData();
@@ -70,9 +70,7 @@ public class Client {
     }
 
     public ServerData deserialize (DatagramPacket datagramPacket) throws IOException {
-        /*ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(datagramPacket.getData());
-        ObjectInputStream objectInputStream = new ObjectInputStream(byteArrayInputStream);
-        return (ClientData) objectInputStream.readObject();*/
+
         InputStream inputStream = new ByteArrayInputStream(datagramPacket.getData());
         TypeReference<ServerData> mapType = new TypeReference<ServerData>() {};
         ServerData serverData = (new ObjectMapper()).readValue(inputStream, mapType);
@@ -87,9 +85,13 @@ public class Client {
             throw e;
         }
     }
-    public void pullSender(){
+    public void pullSender(long index){
+
+        long delta = index - pull.peek().getCounter() + 1;
         for (ClientData clientData : pull) {
             try {
+                clientData.setCounter(clientData.getCounter() + delta);
+                printer.outPrintln("Команда " + clientData.getName() + ":");
                 ServerData ans = sendThenReceive(clientData);
                 printer.out(ans.message(), ans.printType());
             } catch (IOException e) {
@@ -115,15 +117,16 @@ public class Client {
                     printer.outPrintln("By!");
                     System.exit(0);
                 }
+
                 pull.add(clientData);
                 ServerData answer = sendThenReceive(clientData);
                 pull.remove(clientData);
                 printer.out(answer.message(), answer.printType());
                 if (pull.size() > 0){
                     printer.outPrintln("Хотите отправить все не дошедшие ранее команды? [y/n]");
-                    String ans = scanner.next();
+                    String ans = scanner.nextLine();
                     if (ans.equals("yes") || ans.equals("y")){
-                        pullSender();
+                        pullSender(clientData.getCounter());
                     }else{
                         pull.clear();
                     }
@@ -143,10 +146,6 @@ public class Client {
         }
     }
     public DatagramPacket serialize (ClientData clientData) throws IOException {
-        /*ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        ObjectOutputStream objectOutputStream = new ObjectOutputStream(byteArrayOutputStream);
-        objectOutputStream.writeObject(commandData);
-        byte[] buffer = byteArrayOutputStream.toByteArray();*/
         byte[] buffer = (new ObjectMapper()).writeValueAsString(clientData).getBytes();
         return new DatagramPacket(buffer, buffer.length);
     }

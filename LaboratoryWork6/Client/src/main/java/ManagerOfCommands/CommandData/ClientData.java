@@ -16,7 +16,7 @@ public class ClientData implements Comparable {
     private String arg;
     private MusicBand musicBand;
     private static Long number = 0L;
-    private final Long counter;
+    private Long counter;
     public ClientData() {
         if (number.equals(Long.MAX_VALUE)){
             number = 0L;
