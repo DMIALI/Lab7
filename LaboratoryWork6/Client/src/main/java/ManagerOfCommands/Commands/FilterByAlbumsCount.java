@@ -15,6 +15,7 @@ public class FilterByAlbumsCount extends Command{
             return clientData;
         }else{
             printer.errPrintln("Введены некоректные данные");
+            ClientData.setNumber(clientData.getCounter() - 1);
             return null;
         }
     }

@@ -15,6 +15,7 @@ public class CountByNumberOfParticipants extends Command{
             return clientData;
         }else{
             printer.errPrintln("Введены некорректные данные");
+            ClientData.setNumber(clientData.getCounter() - 1);
             return null;
         }
     }

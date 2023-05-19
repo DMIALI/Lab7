@@ -51,7 +51,7 @@ public class Client {
         try{
             ClientData clientData = new ClientData();
             clientData.setName("checkAccess");
-            ServerData ans = sendThenReceive(clientData);
+            ArrayList ans = sendThenReceive(clientData);
         } catch (IOException e){
             throw e;
         }
@@ -76,15 +76,36 @@ public class Client {
         ServerData serverData = (new ObjectMapper()).readValue(inputStream, mapType);
         return  serverData;
     }
-    public ServerData sendThenReceive(ClientData clientData) throws IOException {
-        try{
-            sendData(clientData);
-            return receiveData();
-
-        } catch (IOException e) {
-            throw e;
+    public ArrayList<ServerData> sendThenReceive(ClientData clientData) throws IOException {
+        boolean flag = false;
+        ArrayList<ServerData> answers = new ArrayList<>();
+        sendData(clientData);
+        while(true) {
+            try {
+                answers.add(receiveData());
+                //ServerData serverData = receiveData();
+            } catch (IOException e) {
+                break;
+            }
+            flag = true;
+            datagramSocket.setSoTimeout(10);
         }
+        if (datagramSocket.getSoTimeout() == 10){
+            datagramSocket.setSoTimeout(10_000);
+            return answers;
+        }
+        datagramSocket.setSoTimeout(10_000);
+        throw new IOException();
     }
+
+    private void outputAnswers(ArrayList<ServerData> ans){
+        for (ServerData serverData : ans){
+            printer.out(serverData.message(), serverData.printType());
+            printer.outPrintln("");
+        }
+
+    }
+
     public void pullSender(long index){
 
         long delta = index - pull.peek().getCounter() + 1;
@@ -92,8 +113,7 @@ public class Client {
             try {
                 clientData.setCounter(clientData.getCounter() + delta);
                 printer.outPrintln("Команда " + clientData.getName() + ":");
-                ServerData ans = sendThenReceive(clientData);
-                printer.out(ans.message(), ans.printType());
+                outputAnswers(sendThenReceive(clientData));
             } catch (IOException e) {
                 printer.errPrintln("Снова не получилось отправить данные :(");
             }
@@ -117,22 +137,22 @@ public class Client {
                     printer.outPrintln("By!");
                     System.exit(0);
                 }
-
                 pull.add(clientData);
-                ServerData answer = sendThenReceive(clientData);
+
+               outputAnswers(sendThenReceive(clientData));
+                //printer.out(answer.message(), answer.printType());
+
                 pull.remove(clientData);
-                printer.out(answer.message(), answer.printType());
                 if (pull.size() > 0){
                     printer.outPrintln("Хотите отправить все не дошедшие ранее команды? [y/n]");
                     String ans = scanner.nextLine();
                     if (ans.equals("yes") || ans.equals("y")){
+                        ClientData.setNumber(clientData.getCounter() + pull.size());
                         pullSender(clientData.getCounter());
-                    }else{
-                        pull.clear();
                     }
+                    pull.clear();
                 }
 
-                //printer.outPrintln(answer.counter().toString());
             }  catch (NullPointerException e){
                 printer.errPrintln("Команда не найдена");
             } catch (RuntimeException e){

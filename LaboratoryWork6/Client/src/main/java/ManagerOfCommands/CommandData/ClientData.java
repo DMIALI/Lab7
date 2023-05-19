@@ -15,6 +15,7 @@ public class ClientData implements Comparable {
     private String name;
     private String arg;
     private MusicBand musicBand;
+    @Setter
     private static Long number = 0L;
     private Long counter;
     public ClientData() {
