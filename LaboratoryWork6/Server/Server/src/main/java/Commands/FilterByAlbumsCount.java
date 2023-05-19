@@ -6,6 +6,9 @@ import Main.CollectionManager;
 import Utils.Printer;
 
 public class FilterByAlbumsCount extends Command {
+    public FilterByAlbumsCount() {
+        this.setFunctionality("вывести элементы, значение поля albumsCount которых равно заданном");
+    }
     @Override
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();

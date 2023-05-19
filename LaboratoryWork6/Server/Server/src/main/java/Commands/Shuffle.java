@@ -6,6 +6,9 @@ import Main.CollectionManager;
 import java.util.Collections;
 
 public class Shuffle extends Command {
+    public Shuffle() {
+        this.setFunctionality("перемешать элементы коллекции в случайном порядке");
+    }
     @Override
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();

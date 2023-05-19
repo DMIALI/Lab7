@@ -4,6 +4,9 @@ import CommandData.InputCommandData;
 import Main.CollectionManager;
 
 public class Clear extends Command {
+    public Clear() {
+        this.setFunctionality("очистить коллекцию");
+    }
     @Override
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();

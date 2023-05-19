@@ -5,6 +5,9 @@ import Main.CollectionManager;
 import Utils.Printer;
 
 public class Info extends Command {
+    public Info() {
+        this.setFunctionality("вывести в стандартный поток вывода информацию о коллекции (тип, дата инициализации, количество элементов и т.д.)");
+    }
     @Override
     public void execute(InputCommandData input) {
         Printer printer = input.printer();

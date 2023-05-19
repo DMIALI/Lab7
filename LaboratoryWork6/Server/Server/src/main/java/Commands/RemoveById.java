@@ -7,6 +7,9 @@ import Utils.Printer;
 import java.util.ArrayList;
 
 public class RemoveById extends Command {
+    public RemoveById() {
+        this.setFunctionality("удалить элемент из коллекции по его id");
+    }
     @Override
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();

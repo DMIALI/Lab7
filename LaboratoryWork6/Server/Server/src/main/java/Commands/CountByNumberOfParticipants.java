@@ -6,6 +6,9 @@ import Main.CollectionManager;
 import Utils.Printer;
 
 public class CountByNumberOfParticipants extends Commands.Command {
+    public CountByNumberOfParticipants() {
+        this.setFunctionality("вывести количество элементов, значение поля numberOfParticipants которых равно заданному");
+    }
     @Override
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();

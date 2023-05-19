@@ -13,6 +13,9 @@ import java.util.Collections;
 import java.util.HashMap;
 
 public class ExecuteScript extends Command {
+    public ExecuteScript() {
+        this.setFunctionality("считать и исполнить скрипт из указанного файла. В скрипте содержатся команды в таком же виде, в котором их вводит пользователь в интерактивном режиме");
+    }
     @Override
     public void execute(InputCommandData input) {
             String arg = input.clientData().getArg();

@@ -6,6 +6,9 @@ import Main.CollectionManager;
 import Utils.Printer;
 
 public class RemoveAnyByFrontMan extends Command {
+    public RemoveAnyByFrontMan() {
+        this.setFunctionality("удалить из коллекции один элемент, значение поля frontMan которого эквивалентно заданному");
+    }
     @Override
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();

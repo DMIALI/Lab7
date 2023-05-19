@@ -7,6 +7,9 @@ import Utils.Printer;
 import java.io.IOException;
 
 public class Save extends Command {
+    public Save() {
+        this.setFunctionality("сохранить коллекцию в файл");
+    }
     @Override
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();

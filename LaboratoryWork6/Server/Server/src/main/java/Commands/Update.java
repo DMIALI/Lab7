@@ -12,6 +12,9 @@ import Utils.IdManager;
 import Utils.Printer;
 
 public class Update extends Command {
+    public Update() {
+        this.setFunctionality("обновить значение элемента коллекции, id которого равен заданному");
+    }
     @Override
     public void execute(InputCommandData input) {
         Client client = input.client();

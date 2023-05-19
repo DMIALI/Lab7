@@ -11,6 +11,9 @@ import Utils.Printer;
 import java.util.LinkedList;
 
 public class Add extends Command {
+    public Add() {
+        this.setFunctionality("добавить новый элемент в коллекцию");
+    }
     @Override
     public void execute(InputCommandData input) {
         Client client = input.client();

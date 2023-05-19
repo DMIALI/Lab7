@@ -7,6 +7,9 @@ import java.util.HashMap;
 import java.util.Set;
 
 public class Help extends Command {
+    public Help() {
+        this.setFunctionality("вывести справку по доступным командам");
+    }
     @Override
     public void execute(InputCommandData input) {
         Printer printer = input.printer();

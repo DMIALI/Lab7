@@ -5,6 +5,9 @@ import Main.CollectionManager;
 import Utils.Printer;
 
 public class Show extends Command {
+    public Show() {
+        this.setFunctionality("вывести в стандартный поток вывода все элементы коллекции в строковом представлении");
+    }
     @Override
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();

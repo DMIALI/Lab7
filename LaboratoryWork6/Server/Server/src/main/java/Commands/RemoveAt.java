@@ -7,6 +7,9 @@ import Utils.Printer;
 import java.util.ArrayList;
 
 public class RemoveAt extends Command {
+    public RemoveAt() {
+        this.setFunctionality("удалить элемент, находящийся в заданной позиции коллекции (index)");
+    }
     @Override
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();
