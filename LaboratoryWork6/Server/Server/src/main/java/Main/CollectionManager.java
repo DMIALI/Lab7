@@ -12,6 +12,8 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.LinkedList;
 import java.util.Scanner;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class CollectionManager {
     @Getter
@@ -23,10 +25,10 @@ public class CollectionManager {
     @Getter
     private IdManager idManager;
     private JsonWriter jsonWriter = new JsonWriter();
-
+    private static final Logger logger = LogManager.getLogger();
     public CollectionManager(String path, Scanner scanner) throws IOException {
         this.file = receiveFile(path, scanner);
-        System.out.println("Файл считан успешно");
+        logger.info("Файл считан успешно");
         JsonReader jsonReader = new JsonReader();
         this.musicBands = jsonReader.read(file);
         this.creationDate = new Date();
@@ -40,7 +42,7 @@ public class CollectionManager {
         File file;
         while (true) {
             if (path.equals("exit")){
-                System.out.println("Приложение сейчас закроется....");
+                logger.info("Приложение сейчас закроется....");
                 System.exit(0);
             }
             file = new File(path);
@@ -48,11 +50,11 @@ public class CollectionManager {
                 break;
             }
             if (!file.isFile()) {
-                System.err.println("Файл не существует, введите другой путь к файлу:");
+                logger.error("Файл не существует, введите другой путь к файлу:");
             } else if (!file.canRead()) {
-                System.err.println("Отсутствуют права на чтение, измените права или введите путь к другому файлу:");
+                logger.error("Отсутствуют права на чтение, измените права или введите путь к другому файлу:");
             } else if (!file.canWrite()) {
-                System.err.println("Отсутствуют права на запись, измените права или введите путь к другому файлу:");
+                logger.error("Отсутствуют права на запись, измените права или введите путь к другому файлу:");
             }
             path = scanner.nextLine();
         }

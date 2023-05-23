@@ -5,8 +5,6 @@ import CommandData.PrintType;
 import CommandData.ServerData;
 import Main.Server;
 
-import java.io.IOException;
-
 public class Printer {
     Server server;
     public Printer(Server serv){

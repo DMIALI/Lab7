@@ -13,7 +13,8 @@ import lombok.Getter;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 public class Server {
     @Getter
     private ClientManager clientManager;
@@ -21,7 +22,7 @@ public class Server {
     private DatagramSocket datagramSocket;
     private byte[] buffer = new byte[4096];
     private static int PORT = 1408;
-
+    private static final Logger logger = LogManager.getLogger();
     public Server (DatagramSocket datagramSocket){
         this.datagramSocket = datagramSocket;
     }
@@ -35,12 +36,12 @@ public class Server {
                 int port = datagramPacket.getPort();
                 ClientData clientData = handle(datagramPacket);
                 Client client = clientManager.getClient(inetAddress, port, clientData.getCounter());
-                System.out.print("Получено:");
-                System.out.println(clientData.getCounter());
-                System.out.print("Ожидалось:");
-                System.out.println(client.getDatagramCounter());
-                System.out.println(clientData.getName());
-                System.out.println(clientManager.getClients().toString());
+                logger.info("Получено:");
+                logger.info(clientData.getCounter());
+                logger.info("Ожидалось:");
+                logger.info(client.getDatagramCounter());
+                logger.info(clientData.getName());
+                logger.info(clientManager.getClients().toString());
                 if (checkAccess(clientData, client)){
                     continue;
                 }
@@ -56,9 +57,6 @@ public class Server {
         InputStream inputStream = new ByteArrayInputStream(datagramPacket.getData());
         TypeReference<ClientData> mapType = new TypeReference<ClientData>() {};
         ClientData clientData = (new ObjectMapper()).readValue(inputStream, mapType);
-        /*InputStream inputStream = new ByteArrayInputStream(datagramPacket.getData());
-        ObjectInputStream objectInputStream = new ObjectInputStream(inputStream);
-        ClientData clientData =  (ClientData) objectInputStream.readObject();*/
         return clientData;
     }
     public void checkClientData(ClientData clientData, Client client) throws IOException {

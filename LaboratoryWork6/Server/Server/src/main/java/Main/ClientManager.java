@@ -5,12 +5,14 @@ import lombok.Getter;
 
 import java.net.InetAddress;
 import java.util.LinkedList;
-import java.util.stream.Stream;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 public class ClientManager {
     @Getter
     private LinkedList <Client> clients;
-
+    private static final Logger logger = LogManager.getLogger();
     public ClientManager() {
         clients = new LinkedList();
     }
@@ -22,6 +24,8 @@ public class ClientManager {
                 .forEach(result::add);
         if (result.size() == 0){
             System.out.println("New client!");
+            logger.info("New client!");
+
             Client newClient = new Client(inetAddress, port, datagramCounter);
             addClient(newClient);
             return newClient;
