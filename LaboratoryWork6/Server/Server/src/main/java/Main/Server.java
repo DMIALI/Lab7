@@ -36,12 +36,11 @@ public class Server {
                 int port = datagramPacket.getPort();
                 ClientData clientData = handle(datagramPacket);
                 Client client = clientManager.getClient(inetAddress, port, clientData.getCounter());
-                logger.info("Получено:");
-                logger.info(clientData.getCounter());
-                logger.info("Ожидалось:");
-                logger.info(client.getDatagramCounter());
-                logger.info(clientData.getName());
-                logger.info(clientManager.getClients().toString());
+                logger.info("Клиент: адрес " + client.getInetAddress() + " порт " + client.getPort()+ " объект " + client.toString());
+                logger.debug("Получена датаграмма номер: " + clientData.getCounter());
+                logger.debug("Ожидалось: " + client.getDatagramCounter());
+                logger.info("Команда: " + clientData.getName());
+                logger.debug("Список клиентов: " + clientManager.getClients().toString());
                 if (checkAccess(clientData, client)){
                     continue;
                 }
@@ -49,7 +48,7 @@ public class Server {
                 InputCommandData inputCommandData = new InputCommandData(collectionManager,client, printer, clientData, controlCenter.getCommandMap());
                 controlCenter.executeCommand(inputCommandData);
             } catch (IOException | ClassNotFoundException e) {
-                e.printStackTrace();
+                logger.fatal(e);
             }
         }
     }
@@ -66,7 +65,9 @@ public class Server {
         else{
             if (Objects.equals(clientData.getCounter(), client.getLatestServerData().counter())){
                 send(client.getLatestServerData(), client);
+                return;
             }
+            logger.warn("Получена датаграмма с неожиданным номером");
             throw new IOException();
         }
     }
@@ -88,11 +89,11 @@ public class Server {
                 datagramSocket.send(datagramPacket);
             }
             catch (IOException e){
-                e.printStackTrace();
+                logger.error(e);
             }
         }
         catch (IOException e){
-            e.printStackTrace();
+            logger.error(e);
         }
     }
     public static void main(String[] arg) throws IOException {

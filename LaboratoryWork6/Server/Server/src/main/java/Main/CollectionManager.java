@@ -42,7 +42,7 @@ public class CollectionManager {
         File file;
         while (true) {
             if (path.equals("exit")){
-                logger.info("Приложение сейчас закроется....");
+                System.out.println("Приложение сейчас закроется....");
                 System.exit(0);
             }
             file = new File(path);
@@ -50,11 +50,11 @@ public class CollectionManager {
                 break;
             }
             if (!file.isFile()) {
-                logger.error("Файл не существует, введите другой путь к файлу:");
+                System.err.println("Файл не существует, введите другой путь к файлу:");
             } else if (!file.canRead()) {
-                logger.error("Отсутствуют права на чтение, измените права или введите путь к другому файлу:");
+                System.err.println("Отсутствуют права на чтение, измените права или введите путь к другому файлу:");
             } else if (!file.canWrite()) {
-                logger.error("Отсутствуют права на запись, измените права или введите путь к другому файлу:");
+                System.err.println("Отсутствуют права на запись, измените права или введите путь к другому файлу:");
             }
             path = scanner.nextLine();
         }

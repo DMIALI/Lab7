@@ -23,9 +23,7 @@ public class ClientManager {
                 .filter(x-> x.getPort()==port)
                 .forEach(result::add);
         if (result.size() == 0){
-            System.out.println("New client!");
-            logger.info("New client!");
-
+            logger.info("Новый клиент: адрес " + inetAddress + " порт " + port);
             Client newClient = new Client(inetAddress, port, datagramCounter);
             addClient(newClient);
             return newClient;
@@ -37,6 +35,7 @@ public class ClientManager {
     }
 
     public void delClient(Client client){
+        logger.info("Клиент вышел: адрес " + client.getInetAddress() + " порт " + client.getPort());
         clients.remove(client);
     }
 }
