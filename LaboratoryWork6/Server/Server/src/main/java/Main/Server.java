@@ -15,13 +15,15 @@ import java.net.*;
 import java.util.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import javax.lang.model.type.PrimitiveType;
+
 public class Server {
     @Getter
     private ClientManager clientManager;
 
     private DatagramSocket datagramSocket;
     private byte[] buffer = new byte[4096];
-    private static int PORT = 1408;
     private static final Logger logger = LogManager.getLogger();
     public Server (DatagramSocket datagramSocket){
         this.datagramSocket = datagramSocket;
@@ -96,12 +98,38 @@ public class Server {
             logger.error(e);
         }
     }
-    public static void main(String[] arg) throws IOException {
-        DatagramSocket datagramSocket = new DatagramSocket(PORT);
+    private static DatagramSocket checkPort(String arg) {
+        try {
+            int port = Integer.parseInt(arg);
+            try {
+                return new DatagramSocket(port);
+            }
+            catch (IOException e){
+                logger.fatal("Не удалось занять порт, возможно он уже используется");
+                e.printStackTrace();
+                System.exit(1);
+            }
+        } catch (NumberFormatException e) {
+            logger.fatal("Введен неверный порт");
+            System.err.println("Введен неверный порт");
+            System.exit(1);
+        }
+        return null;
+    }
+    public static void checkArgs(String[] args){
+        if (args.length<2) {
+            logger.fatal("Введено недостаточно аргументов");
+            System.err.println("Необходимо ввести путь к файлу и порт, введено аргументов: " + args.length);
+            System.exit(1);
+        }
+    }
+    public static void main(String[] args) throws IOException {
+        checkArgs(args);
+        DatagramSocket datagramSocket = checkPort(args[1]);
         Server server = new Server(datagramSocket);
         server.clientManager = new ClientManager();
         Scanner scanner = new Scanner(System.in);
-        CollectionManager collectionManager = new CollectionManager("C:\\Users\\фвьшт\\IdeaProjects\\Lab6\\LaboratoryWork6\\Server\\Server\\src\\main\\java\\Main\\data.json", scanner);
+        CollectionManager collectionManager = new CollectionManager(args[0], scanner);
         Printer printer = new Printer(server);
         ControlCenter controlCenter = new ControlCenter();
         server.receiveThenSend(collectionManager, printer, controlCenter);

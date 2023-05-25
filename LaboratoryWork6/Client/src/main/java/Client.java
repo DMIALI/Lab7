@@ -17,7 +17,7 @@ public class Client {
     private static Printer printer = new Printer();
     private static Scanner scanner = new Scanner(System.in);
     private DatagramSocket datagramSocket = new DatagramSocket();
-    private static int SERVER_PORT = 1408;
+    private static int SERVER_PORT;
     private PriorityQueue<ClientData> pull = new PriorityQueue<ClientData>();
     private byte[] buffer;
 
@@ -29,7 +29,7 @@ public class Client {
 
     public void connection() throws UnknownHostException {
         try{
-            datagramSocket.connect(InetAddress.getByName("localhost"), SERVER_PORT);
+            datagramSocket.connect(InetAddress.getByName("helios.cs.ifmo.ru"), SERVER_PORT);
             datagramSocket.setSoTimeout(10_000);
             try {
                 testSend();
@@ -169,13 +169,28 @@ public class Client {
         byte[] buffer = (new ObjectMapper()).writeValueAsString(clientData).getBytes();
         return new DatagramPacket(buffer, buffer.length);
     }
+    private static void checkPort(String arg) {
+        try {
+            SERVER_PORT = Integer.parseInt(arg);
+        } catch (NumberFormatException e) {
+            System.err.println("Введен неверный порт");
+            System.exit(1);
+        }
+    }
+    public static void checkArgs(String[] args){
+        if (args.length<1) {
+            System.err.println("Необходимо ввести порт сервера, введено аргументов: " + args.length);
+            System.exit(1);
+        }
+    }
     public static void main(String[] args) throws SocketException {
         //s367803@helios.se.ifmo.ru
+        checkArgs(args);
+        checkPort(args[0]);
         DatagramSocket datagramSocket = new DatagramSocket();
         Client client = new Client(datagramSocket);
         printer.outPrintln("Пытаюсь подключиться к серверу, пожалуйста подождите...");
         while(true){
-
             try {
                 client.connection();
                 client.start();
