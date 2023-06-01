@@ -6,6 +6,8 @@
       <list>
         <option value="$PROJECT_DIR$/LaboratoryWork6/Client/pom.xml" />
         <option value="$PROJECT_DIR$/LaboratoryWork6/Server/Server/pom.xml" />
+        <option value="$PROJECT_DIR$/Server/Server/pom.xml" />
+        <option value="$PROJECT_DIR$/Client/Client/pom.xml" />
       </list>
     </option>
   </component>
