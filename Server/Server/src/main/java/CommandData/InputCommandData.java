@@ -1,7 +1,7 @@
 package CommandData;
 
 import Commands.Command;
-import Utils.Client;
+import ServerModules.Client;
 import ServerModules.CollectionManager;
 import Utils.Printer;
 

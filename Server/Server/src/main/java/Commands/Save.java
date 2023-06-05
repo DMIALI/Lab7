@@ -16,15 +16,15 @@ public class Save extends Command {
     @Override
     public void execute(InputCommandData input) {
         CollectionManager collectionManager = input.collectionManager();
-        Printer printer = input.printer();
+        //Printer printer = input.printer();
         try {
             collectionManager.save();
             logger.info("Коллекция успешно сохранена");
-            printer.outPrintln("Коллекция успешно сохранена!", input.client(), input.clientData());
+            //printer.outPrintln("Коллекция успешно сохранена!", input.client(), input.clientData());
         }
         catch (IOException e){
             logger.error("Не удалось сохранить в файл: " + String.valueOf(e));
-            printer.errPrintln("Не удалось сохранить в файл: " + String.valueOf(e), input.client(), input.clientData());
+            //printer.errPrintln("Не удалось сохранить в файл: " + String.valueOf(e), input.client(), input.clientData());
         }
     }
 }

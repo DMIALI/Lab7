@@ -4,7 +4,7 @@ import CommandData.ClientData;
 import CommandData.InputCommandData;
 import DataTypes.*;
 import ServerModules.CollectionManager;
-import Utils.Client;
+import ServerModules.Client;
 import Utils.IdManager;
 import Utils.Printer;
 

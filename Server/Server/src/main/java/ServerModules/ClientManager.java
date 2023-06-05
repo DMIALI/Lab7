@@ -1,6 +1,6 @@
 package ServerModules;
 
-import Utils.Client;
+import CommandData.ClientData;
 import lombok.Getter;
 
 import java.net.InetAddress;
@@ -16,7 +16,7 @@ public class ClientManager {
     public ClientManager() {
         clients = new LinkedList();
     }
-    public Client getClient(InetAddress inetAddress, int port, long datagramCounter){
+    public Client getClient(InetAddress inetAddress, int port){
         LinkedList <Client> result = new LinkedList();
         clients.stream()
                 .filter(x-> x.getInetAddress().equals(inetAddress))
@@ -24,7 +24,7 @@ public class ClientManager {
                 .forEach(result::add);
         if (result.size() == 0){
             logger.info("Новый клиент: адрес " + inetAddress + " порт " + port);
-            Client newClient = new Client(inetAddress, port, datagramCounter);
+            Client newClient = new Client(inetAddress, port);
             addClient(newClient);
             return newClient;
         }
@@ -37,5 +37,11 @@ public class ClientManager {
     public void delClient(Client client){
         logger.info("Клиент вышел: адрес " + client.getInetAddress() + " порт " + client.getPort());
         clients.remove(client);
+    }
+
+    public void checkIfClientNew(Client client, ClientData clientData){
+        if (client.getDatagramCounter() == 0){
+            client.setDatagramCounter(clientData.getCounter());
+        }
     }
 }

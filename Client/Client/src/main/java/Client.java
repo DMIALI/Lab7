@@ -1,3 +1,5 @@
+import ClientModules.Handler;
+import ClientModules.Sender;
 import ManagerOfCommands.CommandData.ClientData;
 import ManagerOfCommands.CommandData.ServerData;
 import ManagerOfCommands.CommandsManager;
@@ -14,8 +16,10 @@ import java.util.Scanner;
 
 
 public class Client {
+    private static final int CHUNK_SIZE = 200;
     private static Printer printer = new Printer();
     private static Scanner scanner = new Scanner(System.in);
+    private static Handler handler = new Handler();
     private DatagramSocket datagramSocket = new DatagramSocket();
     private static int SERVER_PORT;
     private PriorityQueue<ClientData> pull = new PriorityQueue<ClientData>();
@@ -58,15 +62,20 @@ public class Client {
     }
 
     private void sendData(ClientData clientData) throws IOException {
-        DatagramPacket datagramPacket = serialize(clientData);
-        datagramSocket.send(datagramPacket);
+        Sender.send(clientData, datagramSocket, CHUNK_SIZE);
     }
 
     private ServerData receiveData() throws IOException {
-        byte[] buffer = new byte[4096];
-        DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
+        DatagramPacket datagramPacket = new DatagramPacket(new byte[CHUNK_SIZE + 4], CHUNK_SIZE + 4);
         datagramSocket.receive(datagramPacket);
-        return deserialize(datagramPacket);
+        byte[] data = datagramPacket.getData();
+        int counter = ((data[0] & 0xFF) << 24) | ((data[1] & 0xFF) << 16) | ((data[2] & 0xFF) << 8 ) | ((data[3] & 0xFF));
+        if (counter >= 0){
+            return handler.add(datagramPacket, CHUNK_SIZE);
+        }
+        else {
+            return handler.handle(datagramPacket, CHUNK_SIZE);
+        }
     }
 
     public ServerData deserialize (DatagramPacket datagramPacket) throws IOException {
@@ -82,13 +91,15 @@ public class Client {
         sendData(clientData);
         while(true) {
             try {
-                answers.add(receiveData());
-                //ServerData serverData = receiveData();
+                ServerData serverData = receiveData();
+                if (!(serverData == null)){
+                    answers.add(serverData);;
+                }
+                flag = true;
+                datagramSocket.setSoTimeout(10);
             } catch (IOException e) {
                 break;
             }
-            flag = true;
-            datagramSocket.setSoTimeout(10);
         }
         if (datagramSocket.getSoTimeout() == 10){
             datagramSocket.setSoTimeout(10_000);
@@ -164,10 +175,6 @@ public class Client {
             printer.outPrint("Введите команду: ");
             command = scanner.nextLine();
         }
-    }
-    public DatagramPacket serialize (ClientData clientData) throws IOException {
-        byte[] buffer = (new ObjectMapper()).writeValueAsString(clientData).getBytes();
-        return new DatagramPacket(buffer, buffer.length);
     }
     private static void checkPort(String arg) {
         try {

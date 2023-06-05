@@ -4,6 +4,7 @@ import ManagerOfCommands.DataTypes.MusicBand;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -11,6 +12,7 @@ import java.util.ArrayList;
 @Getter
 @Setter
 @AllArgsConstructor
+@ToString(includeFieldNames = true)
 public class ClientData implements Comparable {
     private String name;
     private String arg;

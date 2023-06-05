@@ -5,24 +5,23 @@ import CommandData.ClientData;
 import CommandData.InputCommandData;
 import CommandData.PrintType;
 import CommandData.ServerData;
-import Utils.Client;
+import ServerModules.Client;
 import Utils.Printer;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.Getter;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
+
+import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Server {
-    private static final int CHUNK_SIZE = 100;
+    private static final int CHUNK_SIZE = 200;
     @Getter
     private ClientManager clientManager;
     private DatagramSocket datagramSocket;
-    private byte[] buffer = new byte[4096];
     private static final Logger logger = LogManager.getLogger();
     public Server (DatagramSocket datagramSocket){
         this.datagramSocket = datagramSocket;
@@ -31,12 +30,14 @@ public class Server {
     public void receiveThenSend(CollectionManager collectionManager, Printer printer, ControlCenter controlCenter){
         while (true){
             try {
-                DatagramPacket datagramPacket = new DatagramPacket(buffer, buffer.length);
+                DatagramPacket datagramPacket = new DatagramPacket(new byte[CHUNK_SIZE + 4], CHUNK_SIZE + 4);
                 datagramSocket.receive(datagramPacket);
-                InetAddress inetAddress = datagramPacket.getAddress();
-                int port = datagramPacket.getPort();
-                ClientData clientData = handle(datagramPacket);
-                Client client = clientManager.getClient(inetAddress, port, clientData.getCounter());
+                Client client = clientManager.getClient(datagramPacket.getAddress(), datagramPacket.getPort());
+                ClientData clientData = receiveClientData(client, datagramPacket, collectionManager, printer, controlCenter);
+                if (clientData == null){
+                    continue;
+                }
+                clientManager.checkIfClientNew(client, clientData);
                 logger.info("Клиент: адрес " + client.getInetAddress() + " порт " + client.getPort()+ " объект " + client.toString());
                 logger.debug("Получена датаграмма номер: " + clientData.getCounter());
                 logger.debug("Ожидалось: " + client.getDatagramCounter());
@@ -47,16 +48,27 @@ public class Server {
                     continue;
                 }
                 checkClientData(clientData, client);
-                controlCenter.executeCommand(new InputCommandData(collectionManager,client, printer, clientData, controlCenter.getCommandMap()));
-            } catch (IOException | ClassNotFoundException e) {
+                controlCenter.executeCommand(new InputCommandData(collectionManager, client, printer, clientData, controlCenter.getCommandMap()));
+            } catch (IOException | ClassNotFoundException | NullPointerException e) {
                 logger.fatal(e);
             }
         }
     }
-    public ClientData handle(DatagramPacket datagramPacket) throws IOException, ClassNotFoundException {
-        return Handler.handle(datagramPacket);
+    private ClientData receiveClientData(Client client, DatagramPacket datagramPacket, CollectionManager collectionManager, Printer printer, ControlCenter controlCenter) throws IOException, ClassNotFoundException {
+        byte[] data = datagramPacket.getData();
+        int counter = ((data[0] & 0xFF) << 24) | ((data[1] & 0xFF) << 16) | ((data[2] & 0xFF) << 8 ) | ((data[3] & 0xFF));
+        ClientData clientData;
+        if (counter >= 0){
+            logger.trace("Получен чанк номер " + (1+counter/CHUNK_SIZE));
+            clientData = client.getHandler().add(datagramPacket, CHUNK_SIZE);
+        }
+        else{
+            logger.trace("Получен чанк номер " + 1 + " ожидается еще "+ (-1+((int) -1*counter/CHUNK_SIZE)) +" чанков");
+            clientData = client.getHandler().handle(datagramPacket, CHUNK_SIZE);
+        }
+        return clientData;
     }
-    public void checkClientData(ClientData clientData, Client client) throws IOException {
+    private void checkClientData(ClientData clientData, Client client) throws IOException {
         if (clientData.getCounter() == client.getDatagramCounter()){
             client.increaseCounter();
         }
@@ -70,7 +82,7 @@ public class Server {
         }
     }
 
-    public boolean checkAccess(ClientData clientData, Client client) throws IOException {
+    private boolean checkAccess(ClientData clientData, Client client) throws IOException {
         if (Objects.equals(clientData.getName(), "checkAccess")){
             client.increaseCounter();
             send(new ServerData(1L, "checkAccess", PrintType.PRINT), client);
@@ -99,7 +111,7 @@ public class Server {
         }
         return null;
     }
-    public static void checkArgs(String[] args){
+    private static void checkArgs(String[] args){
         if (args.length<2) {
             logger.fatal("Введено недостаточно аргументов");
             System.err.println("Необходимо ввести путь к файлу и порт, введено аргументов: " + args.length);
