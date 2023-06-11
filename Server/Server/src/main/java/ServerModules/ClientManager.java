@@ -24,7 +24,7 @@ public class ClientManager {
                 .forEach(result::add);
         if (result.size() == 0){
             logger.info("Новый клиент: адрес " + inetAddress + " порт " + port);
-            Client newClient = new Client(inetAddress, port);
+            Client newClient = new Client(login, passwd, inetAddress, port);
             addClient(newClient);
             return newClient;
         }

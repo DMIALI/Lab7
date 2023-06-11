@@ -11,16 +11,17 @@ import java.net.InetAddress;
 
 public class Sender {
     public static void send(ServerData serverData, Client client, DatagramSocket datagramSocket, int chunkSize, Logger logger) {
-        InetAddress clientInetAddress = client.getInetAddress();
-        int clientPort = client.getPort();
-        byte[] dataBuffer = serialize(serverData, logger).getBytes();
-        splitToChunksAndSend(dataBuffer, chunkSize, clientInetAddress, clientPort, logger, datagramSocket);
-        /*byte[][] sendingDataBuffer = splitToChunksAndSend(dataBuffer, chunkSize);
-        for (byte[] chunk : sendingDataBuffer){
-            sendDatagram(datagramSocket, new DatagramPacket(chunk, chunkSize, clientInetAddress, clientPort), logger);
-        }*/
-        logger.info("Ответ на запрос номер " + serverData.counter() + " отправлен");
-        logger.debug(serverData.toString());
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                InetAddress clientInetAddress = client.getInetAddress();
+                int clientPort = client.getPort();
+                byte[] dataBuffer = serialize(serverData, logger).getBytes();
+                splitToChunksAndSend(dataBuffer, chunkSize, clientInetAddress, clientPort, logger, datagramSocket);
+                logger.info("Ответ на запрос номер " + serverData.counter() + " отправлен");
+                logger.debug(serverData.toString());
+            }
+        }).start();
     }
     private static String serialize(ServerData serverData, Logger logger){
         try {

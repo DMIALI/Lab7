@@ -16,7 +16,7 @@ import java.util.Scanner;
 
 
 public class Client {
-    private static final int CHUNK_SIZE = 200;
+    private static final int CHUNK_SIZE = 250;
     private static Printer printer = new Printer();
     private static Scanner scanner = new Scanner(System.in);
     private static Handler handler = new Handler();

@@ -13,7 +13,7 @@ import java.util.Arrays;
 public class Handler {
     byte[] message;
     int messagesCounter;
-    public ClientData handle(DatagramPacket datagramPacket, int chunkSize) throws IOException {
+    public synchronized ClientData handle(DatagramPacket datagramPacket, int chunkSize) throws IOException {
         byte[] data = datagramPacket.getData();
         int offset = ((data[0] & 0xFF) << 24) | ((data[1] & 0xFF) << 16) | ((data[2] & 0xFF) << 8 ) | ((data[3] & 0xFF));
         datagramPacket.setData(Arrays.copyOfRange(data, 4, 4 + chunkSize));
@@ -22,7 +22,7 @@ public class Handler {
         System.arraycopy(datagramPacket.getData(),0,message,0,chunkSize);
         return createObject();
     }
-    public ClientData add(DatagramPacket datagramPacket, int chunkSize) throws IOException {
+    public synchronized ClientData add(DatagramPacket datagramPacket, int chunkSize) throws IOException {
         byte[] data = datagramPacket.getData();
         int offset = ((data[0] & 0xFF) << 24) | ((data[1] & 0xFF) << 16) | ((data[2] & 0xFF) << 8 ) | ((data[3] & 0xFF));
         datagramPacket.setData(Arrays.copyOfRange(data, 4, 4 + chunkSize));
@@ -31,7 +31,7 @@ public class Handler {
         return createObject();
 
     }
-    private ClientData createObject() throws IOException {
+    private synchronized ClientData createObject() throws IOException {
         if (messagesCounter == 0){
             //System.out.println(Arrays.toString(message));
             InputStream inputStream = new ByteArrayInputStream(message);

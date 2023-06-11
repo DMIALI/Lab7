@@ -1,10 +1,7 @@
 package Main;
 
+import CommandData.*;
 import ServerModules.*;
-import CommandData.ClientData;
-import CommandData.InputCommandData;
-import CommandData.PrintType;
-import CommandData.ServerData;
 import ServerModules.Client;
 import Utils.Printer;
 import lombok.Getter;
@@ -12,13 +9,13 @@ import lombok.Getter;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.*;
 
-import lombok.SneakyThrows;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Server {
-    private static final int CHUNK_SIZE = 200;
+    private static final int CHUNK_SIZE = 250;
     @Getter
     private ClientManager clientManager;
     private DatagramSocket datagramSocket;
@@ -27,31 +24,55 @@ public class Server {
         this.datagramSocket = datagramSocket;
     }
 
-    public void receiveThenSend(CollectionManager collectionManager, Printer printer, ControlCenter controlCenter){
+    public void receiveThenSend(CollectionManager collectionManager, Printer printer, ControlCenter controlCenter, ExecutorService executorService, ForkJoinPool forkJoinPool) throws NullPointerException {
         while (true){
+            DatagramPacket datagramPacket = new DatagramPacket(new byte[CHUNK_SIZE + 4], CHUNK_SIZE + 4);
             try {
-                DatagramPacket datagramPacket = new DatagramPacket(new byte[CHUNK_SIZE + 4], CHUNK_SIZE + 4);
                 datagramSocket.receive(datagramPacket);
-                Client client = clientManager.getClient(datagramPacket.getAddress(), datagramPacket.getPort());
-                ClientData clientData = receiveClientData(client, datagramPacket, collectionManager, printer, controlCenter);
-                if (clientData == null){
-                    continue;
-                }
-                clientManager.checkIfClientNew(client, clientData);
-                logger.info("Клиент: адрес " + client.getInetAddress() + " порт " + client.getPort()+ " объект " + client.toString());
-                logger.debug("Получена датаграмма номер: " + clientData.getCounter());
-                logger.debug("Ожидалось: " + client.getDatagramCounter());
-                logger.info("Команда: " + clientData.getName());
-                logger.debug(clientData.toString());
-                logger.debug("Список клиентов: " + clientManager.getClients().toString());
-                if (checkAccess(clientData, client)){
-                    continue;
-                }
-                checkClientData(clientData, client);
-                controlCenter.executeCommand(new InputCommandData(collectionManager, client, printer, clientData, controlCenter.getCommandMap()));
-            } catch (IOException | ClassNotFoundException | NullPointerException e) {
+            } catch (IOException e) {
                 logger.fatal(e);
             }
+            executorService.submit(new Runnable() {
+                @Override
+                public void run() {
+                    ReceivedData receivedData = forkJoinPool.invoke(new RecursiveTask<ReceivedData>() {
+                        @Override
+                        protected ReceivedData compute() {
+                            try {
+                                Client client = clientManager.getClient(datagramPacket.getAddress(), datagramPacket.getPort());
+                                return new ReceivedData(receiveClientData(client, datagramPacket, collectionManager, printer, controlCenter),client);
+                            }
+                            catch (IOException | ClassNotFoundException | NullPointerException e){
+                                logger.fatal(e);
+                            }
+                            return null;
+                        }
+                    });
+                    ClientData clientData = receivedData.clientData();
+                    Client client = receivedData.client();
+                    if (clientData == null){
+                        return;
+                    }
+                    clientManager.checkIfClientNew(client, clientData);
+                    logger.info("Клиент: адрес " + client.getInetAddress() + " порт " + client.getPort()+ " объект " + client.toString());
+                    logger.debug("Получена датаграмма номер: " + clientData.getCounter());
+                    logger.debug("Ожидалось: " + client.getDatagramCounter());
+                    logger.info("Команда: " + clientData.getName());
+                    logger.debug(clientData.toString());
+                    logger.debug("Список клиентов: " + clientManager.getClients().toString());
+                    try{
+                        if (checkAccess(clientData, client)){
+                            return;
+                        }
+                        checkClientData(clientData, client);
+                        controlCenter.executeCommand(new InputCommandData(collectionManager, client, printer, clientData, controlCenter.getCommandMap()));
+                    }
+                    catch (IOException e){
+                        logger.fatal(e);
+                    }
+                }
+            });
+
         }
     }
     private ClientData receiveClientData(Client client, DatagramPacket datagramPacket, CollectionManager collectionManager, Printer printer, ControlCenter controlCenter) throws IOException, ClassNotFoundException {
@@ -127,6 +148,8 @@ public class Server {
         CollectionManager collectionManager = new CollectionManager(args[0], scanner);
         Printer printer = new Printer(server);
         ControlCenter controlCenter = new ControlCenter();
-        server.receiveThenSend(collectionManager, printer, controlCenter);
+        ExecutorService executorService = Executors.newCachedThreadPool();
+        ForkJoinPool forkJoinPool = new ForkJoinPool();
+        server.receiveThenSend(collectionManager, printer, controlCenter, executorService, forkJoinPool);
     }
 }
