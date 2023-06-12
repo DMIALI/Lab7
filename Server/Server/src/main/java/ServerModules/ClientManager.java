@@ -62,9 +62,6 @@ public class ClientManager {
         if (client.getDatagramCounter() == 0){
             client.setDatagramCounter(clientData.getCounter());
         }
-        if (!handlers.containsKey(client.getClientConnection())){
-            handlers.put(client.getClientConnection(), new Handler());
-        }
     }
     public char[] get_SHA_512_Password(char[] passwordToHash){
         return hashMaker.get_SHA_512_Password(String.valueOf(passwordToHash), "weLoveProgramming", logger).toCharArray();
