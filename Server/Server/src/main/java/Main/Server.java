@@ -82,9 +82,7 @@ public class Server {
         byte[] data = datagramPacket.getData();
         if (!clientManager.getHandlers().containsKey(clientConnection)){
             clientManager.getHandlers().put(clientConnection, new Handler());
-
         }
-
         int counter = ((data[0] & 0xFF) << 24) | ((data[1] & 0xFF) << 16) | ((data[2] & 0xFF) << 8 ) | ((data[3] & 0xFF));
         ClientData clientData;
         if (counter >= 0){
@@ -120,6 +118,8 @@ public class Server {
     }*/
     private boolean checkLoginAndPasswd(ClientData clientData, ClientManager clientManager, ClientConnection clientConnection) {
         if (Objects.equals(clientData.getName(), "createNewClient")){
+            logger.info("Команда: " + clientData.getName());
+            logger.debug(clientData.toString());
             switch (clientManager.checkLoginAndPasswd(clientData.getLogin(),clientData.getPasswd())){
                 case(-1):
                     send(new ServerData(clientData.getCounter(),"Пользователь с таким логином существует", PrintType.ERRPRINTLN), clientConnection);
@@ -130,12 +130,14 @@ public class Server {
                     logger.info("Вход вместо регистрации: пользователь с логином "+clientData.getLogin()+" уже существует");
                     return false;
                 default:
-                    clientManager.addClient(new Client(clientData.getLogin(), clientData.getPasswd()));
+                    clientManager.createAndAddClient(clientData.getLogin(), clientData.getPasswd());
                     send(new ServerData(clientData.getCounter(),"Вы успешно зарегистрировались под логином " + clientData.getLogin(), PrintType.PRINTLN), clientConnection);
                     return false;
             }
         }
         else if (Objects.equals(clientData.getName(), "clientEntry")) {
+            logger.info("Команда: " + clientData.getName());
+            logger.debug(clientData.toString());
             switch (clientManager.checkLoginAndPasswd(clientData.getLogin(),clientData.getPasswd())){
                 case(-1):
                     send(new ServerData(clientData.getCounter(),"Неверный пароль", PrintType.ERRPRINTLN), clientConnection);
@@ -146,7 +148,6 @@ public class Server {
                     logger.info("Успешная авторизация: пользователь с логином "+clientData.getLogin());
                     return false;
                 default:
-                    clientManager.addClient(new Client(clientData.getLogin(), clientData.getPasswd()));
                     send(new ServerData(clientData.getCounter(),"Пользователя с логином " + clientData.getLogin() + " не существует", PrintType.ERRPRINTLN), clientConnection);
                     logger.info("Неудачная попытка авторизации: указан несуществующий логин "+clientData.getLogin());
                     return false;

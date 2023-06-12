@@ -54,6 +54,9 @@ public class ClientManager {
         clients.getClients().add(client);
         writeClients(clients);
     }
+    public void createAndAddClient(String login, char[] pwd){
+        addClient(new Client(login, get_SHA_512_Password(pwd)));
+    }
 
     public void delClient(Client client){
         logger.info("Клиент вышел: логин " + client.getLogin());
@@ -72,6 +75,8 @@ public class ClientManager {
         char[] passwd = get_SHA_512_Password(pwd);
         for (Client client:clients.getClients()){
             if (client.getLogin().equals(login)){
+                System.out.println(passwd);
+                System.out.println(client.getPasswd());
                 if(Arrays.equals(client.getPasswd(), passwd)){
                     return 1;
                 }
@@ -84,7 +89,7 @@ public class ClientManager {
         try {
             File json = new File(clientsPath);
             FileWriter fileWriter = new FileWriter(json);
-            String newjson = (new ObjectMapper()).writeValueAsString(clients);
+            String newjson = (new ObjectMapper()).writeValueAsString(clients.getLoginsAndPasswordsFromClients());
             fileWriter.write(newjson);
             fileWriter.flush();
             fileWriter.close();
@@ -96,14 +101,17 @@ public class ClientManager {
     private Clients readClients(){
         try {
             File json = new File(clientsPath);
+            Clients clients = new Clients(new LinkedList<>());
             if (json.length() == 0){
                 logger.info("Файл с пользователями пуст");
-                return new Clients(new LinkedList<Client>());
+                return clients;
             }
             InputStreamReader inputStreamReader = new InputStreamReader(new FileInputStream(json));
-            TypeReference<Clients> mapType = new TypeReference<>() {};
+            TypeReference<LinkedList<ClientLoginAndPasswd>> mapType = new TypeReference<>() {};
+            LinkedList<ClientLoginAndPasswd> obj = (new ObjectMapper()).readValue(inputStreamReader, mapType);
+            clients.createClientsFromLoginsAndPasswords(obj);
             logger.info("Файл считан успешно");
-            return (new ObjectMapper()).readValue(inputStreamReader, mapType);
+            return clients;
         }catch (IOException e) {
             logger.fatal(e);
             System.exit(-1);
