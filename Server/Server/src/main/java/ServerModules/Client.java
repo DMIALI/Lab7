@@ -31,4 +31,7 @@ public class Client{
     public void increaseCounter(){
         datagramCounter++;
     }
+    public String toString(){
+        return login;
+    }
 }

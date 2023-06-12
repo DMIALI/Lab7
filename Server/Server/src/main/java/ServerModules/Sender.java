@@ -1,6 +1,7 @@
 package ServerModules;
 
 import CommandData.ServerData;
+import Utils.ClientConnection;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.logging.log4j.Logger;
 
@@ -10,12 +11,12 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 
 public class Sender {
-    public static void send(ServerData serverData, Client client, DatagramSocket datagramSocket, int chunkSize, Logger logger) {
+    public static void send(ServerData serverData, ClientConnection clientConnection, DatagramSocket datagramSocket, int chunkSize, Logger logger) {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                InetAddress clientInetAddress = client.getInetAddress();
-                int clientPort = client.getPort();
+                InetAddress clientInetAddress = clientConnection.inetAddress();
+                int clientPort = clientConnection.port();
                 byte[] dataBuffer = serialize(serverData, logger).getBytes();
                 splitToChunksAndSend(dataBuffer, chunkSize, clientInetAddress, clientPort, logger, datagramSocket);
                 logger.info("Ответ на запрос номер " + serverData.counter() + " отправлен");

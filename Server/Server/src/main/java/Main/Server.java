@@ -51,10 +51,11 @@ public class Server {
                     });
                     ClientData clientData = receivedData.clientData();
                     ClientConnection clientConnection = receivedData.clientConnection();
-                    if (clientData == null || !clientManager.checkLoginAndPasswd(clientData.getLogin(), clientData.getPasswd())){
+                    if (clientData == null || !checkLoginAndPasswd(clientData, clientManager, clientConnection)){
                         return;
                     }
                     Client client = clientManager.getClient(clientData.getLogin(),clientData.getPasswd());
+                    client.setClientConnection(clientConnection);
                     clientManager.checkIfClientNew(client, clientData);
                     logger.info("Клиент: логин " +client.getLogin()+ " адрес " + clientConnection.inetAddress() + " порт " + clientConnection.port());
                     logger.debug("Получена датаграмма номер: " + clientData.getCounter());
@@ -63,9 +64,9 @@ public class Server {
                     logger.debug(clientData.toString());
                     logger.debug("Список клиентов: " + clientManager.getClients().toString());
                     try{
-                        if (checkAccess(clientData, client)){
+                        /*if (checkAccess(clientData, client)){
                             return;
-                        }
+                        }*/
                         checkClientData(clientData, client);
                         controlCenter.executeCommand(new InputCommandData(collectionManager, client, printer, clientData, controlCenter.getCommandMap()));
                     }
@@ -97,24 +98,57 @@ public class Server {
         }
         else{
             if (Objects.equals(clientData.getCounter(), client.getLatestServerData().counter())){
-                send(client.getLatestServerData(), client);
+                send(client.getLatestServerData(), client.getClientConnection());
                 return;
             }
             logger.warn("Получена датаграмма с неожиданным номером");
             throw new IOException();
         }
     }
-    CheckLoginAndPasswd()
-    private boolean checkAccess(ClientData clientData, Client client) throws IOException {
+    /*private boolean checkAccess(ClientData clientData, Client client) throws IOException {
         if (Objects.equals(clientData.getName(), "checkAccess")){
             client.increaseCounter();
-            send(new ServerData(1L, "checkAccess", PrintType.PRINT), client);
+            send(new ServerData(1L, "checkAccess", PrintType.PRINT), new ClientConnection(clientData.));
             return true;
         }
         return false;
+    }*/
+    private boolean checkLoginAndPasswd(ClientData clientData, ClientManager clientManager, ClientConnection clientConnection) {
+        if (Objects.equals(clientData.getName(), "createNewClient")){
+            switch (clientManager.checkLoginAndPasswd(clientData.getLogin(),clientData.getPasswd())){
+                case(-1):
+                    send(new ServerData(clientData.getCounter(),"Пользователь с таким логином существует", PrintType.ERRPRINTLN), clientConnection);
+                    logger.info("Неудачная попытка регистрации: пользователь с логином "+clientData.getLogin()+" уже существует");
+                    return false;
+                case(1):
+                    send(new ServerData(clientData.getCounter(),"Вы успешно вошли под логином " + clientData.getLogin(), PrintType.PRINTLN), clientConnection);
+                    logger.info("Вход вместо регистрации: пользователь с логином "+clientData.getLogin()+" уже существует");
+                    return false;
+                default:
+                    clientManager.addClient(new Client(clientData.getLogin(), clientData.getPasswd()));
+                    return false;
+            }
+        }
+        else if (Objects.equals(clientData.getName(), "clientEntry")) {
+            switch (clientManager.checkLoginAndPasswd(clientData.getLogin(),clientData.getPasswd())){
+                case(-1):
+                    send(new ServerData(clientData.getCounter(),"Неверный пароль", PrintType.ERRPRINTLN), clientConnection);
+                    logger.info("Неудачная попытка авторизации: указан неверный пароль, логин "+clientData.getLogin());
+                    return false;
+                case(1):
+                    send(new ServerData(clientData.getCounter(),"Вы успешно вошли под логином " + clientData.getLogin(), PrintType.PRINTLN), clientConnection);
+                    logger.info("Успешная авторизация: пользователь с логином "+clientData.getLogin());
+                    return false;
+                default:
+                    clientManager.addClient(new Client(clientData.getLogin(), clientData.getPasswd()));
+                    logger.info("Неудачная попытка авторизации: указан несуществующий логин "+clientData.getLogin());
+                    return false;
+            }
+        }
+        return true;
     }
-    public void send(ServerData serverData, Client client) {
-        Sender.send(serverData, client,datagramSocket, CHUNK_SIZE ,logger);
+    public void send(ServerData serverData, ClientConnection clientConnection) {
+        Sender.send(serverData, clientConnection, datagramSocket, CHUNK_SIZE ,logger);
     }
     private static DatagramSocket checkPort(String arg) {
         try {
