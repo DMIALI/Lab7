@@ -1,6 +1,7 @@
 import ClientModules.Handler;
 import ClientModules.Sender;
 import ManagerOfCommands.CommandData.ClientData;
+import ManagerOfCommands.CommandData.PrintType;
 import ManagerOfCommands.CommandData.ServerData;
 import ManagerOfCommands.CommandsManager;
 import Utils.Printer;
@@ -25,7 +26,8 @@ public class Client {
     private PriorityQueue<ClientData> pull = new PriorityQueue<ClientData>();
     private byte[] buffer;
 
-
+    private char[] password ;
+    private String login;
     public Client(DatagramSocket datagramSocket) throws SocketException {
         this.datagramSocket = new DatagramSocket();
     }
@@ -35,19 +37,58 @@ public class Client {
         try{
             datagramSocket.connect(InetAddress.getByName("localhost"), SERVER_PORT);
             datagramSocket.setSoTimeout(10_000);
-            try {
-                testSend();
-                printer.outPrintln("Подключение успешно выполнено!");
-            } catch (IOException e) {
-                printer.errPrintln("Подключение не было установленно");
-                throw new UnknownHostException();
-            }
+            authorization();
+            printer.outPrintln("Подключение успешно выполнено!");
 
         }catch (UnknownHostException e) {
             printer.errPrintln("Сервера пока не существует :(");
             throw e;
         } catch (SocketException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public void authorization(){
+        while (true){
+            printer.outPrintln("Вы хотите зарегистрироваться или войти в существующий аккаунт?");
+            printer.outPrintln("LogIn - войти \t Create - зарегистрироваться");
+            String input = scanner.nextLine();
+            ClientData clientData = null;
+            if (input.toLowerCase().equals("LogIn".toLowerCase())){
+                printer.outPrintln("Введите имя пользователя");
+                String newUsername = scanner.nextLine();
+                //String newUsername = System.console().readLine();
+                printer.outPrintln("Введите пароль");
+                //char[] newPassword = System.console().readPassword(); - хороший ввод пароля, без отображения
+                char[] newPassword = scanner.nextLine().toCharArray();
+                clientData = ClientData.builder()
+                        .name("clientEntry")
+                        .login(newUsername)
+                        .passwd(newPassword).build();
+            } else if (input.toLowerCase().equals("Create".toLowerCase())){
+                printer.outPrintln("Введите имя пользователя");
+                //String newUsername = System.console().readLine();
+                String newUsername = scanner.nextLine();
+                printer.outPrintln("Введите пароль");
+                //char[] newPassword = System.console().readPassword(); - хороший ввод пароля, без отображения
+                char[] newPassword = scanner.nextLine().toCharArray();
+                clientData = ClientData.builder()
+                        .name("createNewClient")
+                        .login(newUsername)
+                        .passwd(newPassword).build();
+
+                //printer.errPrintln(new String(newPassword));
+            }
+            try{
+                ArrayList ans = sendThenReceive(clientData);
+                outputAnswers(ans);
+                ServerData serverData = (ServerData) ans.get(0);
+                if (((ServerData) ans.get(0)).printType() != PrintType.ERRPRINTLN){
+                    break;
+                }
+            } catch (IOException e){
+                printer.errPrintln(String.valueOf(e));
+            }
         }
     }
 
@@ -86,7 +127,6 @@ public class Client {
         return  serverData;
     }
     public ArrayList<ServerData> sendThenReceive(ClientData clientData) throws IOException {
-        boolean flag = false;
         ArrayList<ServerData> answers = new ArrayList<>();
         sendData(clientData);
         while(true) {
@@ -95,7 +135,6 @@ public class Client {
                 if (!(serverData == null)){
                     answers.add(serverData);;
                 }
-                flag = true;
                 datagramSocket.setSoTimeout(10);
             } catch (IOException e) {
                 break;
@@ -197,6 +236,8 @@ public class Client {
         DatagramSocket datagramSocket = new DatagramSocket();
         Client client = new Client(datagramSocket);
         printer.outPrintln("Пытаюсь подключиться к серверу, пожалуйста подождите...");
+        //Authorizer authorizer = new Authorizer(printer);
+        //authorizer.authorization();
         while(true){
             try {
                 client.connection();

@@ -82,7 +82,9 @@ public class Server {
         byte[] data = datagramPacket.getData();
         if (!clientManager.getHandlers().containsKey(clientConnection)){
             clientManager.getHandlers().put(clientConnection, new Handler());
+
         }
+
         int counter = ((data[0] & 0xFF) << 24) | ((data[1] & 0xFF) << 16) | ((data[2] & 0xFF) << 8 ) | ((data[3] & 0xFF));
         ClientData clientData;
         if (counter >= 0){

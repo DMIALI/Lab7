@@ -1,10 +1,7 @@
 package ManagerOfCommands.CommandData;
 
 import ManagerOfCommands.DataTypes.MusicBand;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -12,8 +9,11 @@ import java.util.ArrayList;
 @Getter
 @Setter
 @AllArgsConstructor
+@Builder
 @ToString(includeFieldNames = true)
 public class ClientData implements Comparable {
+    private String login;
+    private char[] passwd;
     private String name;
     private String arg;
     private MusicBand musicBand;
