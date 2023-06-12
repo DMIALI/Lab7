@@ -126,6 +126,7 @@ public class Server {
                     return false;
                 default:
                     clientManager.addClient(new Client(clientData.getLogin(), clientData.getPasswd()));
+                    send(new ServerData(clientData.getCounter(),"Вы успешно зарегистрировались под логином " + clientData.getLogin(), PrintType.PRINTLN), clientConnection);
                     return false;
             }
         }
@@ -141,6 +142,7 @@ public class Server {
                     return false;
                 default:
                     clientManager.addClient(new Client(clientData.getLogin(), clientData.getPasswd()));
+                    send(new ServerData(clientData.getCounter(),"Пользователя с логином " + clientData.getLogin() + " не существует", PrintType.ERRPRINTLN), clientConnection);
                     logger.info("Неудачная попытка авторизации: указан несуществующий логин "+clientData.getLogin());
                     return false;
             }
