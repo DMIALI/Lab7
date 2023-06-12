@@ -33,6 +33,7 @@ public class ClientManager {
         this.jsonWriter = new JsonWriter();
         this.jsonReader = new JsonReader();
         this.clients = readClients();
+        this.handlers = new HashMap<ClientConnection,Handler>();
     }
     public Client getClient(String login, char[] pwd){
         char[] passwd = get_SHA_512_Password(pwd);
