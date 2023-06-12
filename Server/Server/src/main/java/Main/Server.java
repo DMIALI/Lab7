@@ -3,6 +3,7 @@ package Main;
 import CommandData.*;
 import ServerModules.*;
 import ServerModules.Client;
+import Utils.ClientConnection;
 import Utils.Printer;
 import lombok.Getter;
 
@@ -39,8 +40,8 @@ public class Server {
                         @Override
                         protected ReceivedData compute() {
                             try {
-                                Client client = clientManager.getClient(datagramPacket.getAddress(), datagramPacket.getPort());
-                                return new ReceivedData(receiveClientData(client, datagramPacket, collectionManager, printer, controlCenter),client);
+                                ClientConnection clientConnection = new ClientConnection(datagramPacket.getAddress(),datagramPacket.getPort());
+                                return new ReceivedData(receiveClientData(clientConnection, datagramPacket, clientManager),clientConnection);
                             }
                             catch (IOException | ClassNotFoundException | NullPointerException e){
                                 logger.fatal(e);
@@ -49,12 +50,13 @@ public class Server {
                         }
                     });
                     ClientData clientData = receivedData.clientData();
-                    Client client = receivedData.client();
-                    if (clientData == null){
+                    ClientConnection clientConnection = receivedData.clientConnection();
+                    if (clientData == null || !clientManager.checkLoginAndPasswd(clientData.getLogin(), clientData.getPasswd())){
                         return;
                     }
+                    Client client = clientManager.getClient(clientData.getLogin(),clientData.getPasswd());
                     clientManager.checkIfClientNew(client, clientData);
-                    logger.info("Клиент: адрес " + client.getInetAddress() + " порт " + client.getPort()+ " объект " + client.toString());
+                    logger.info("Клиент: логин " +client.getLogin()+ " адрес " + clientConnection.inetAddress() + " порт " + clientConnection.port());
                     logger.debug("Получена датаграмма номер: " + clientData.getCounter());
                     logger.debug("Ожидалось: " + client.getDatagramCounter());
                     logger.info("Команда: " + clientData.getName());
@@ -75,17 +77,17 @@ public class Server {
 
         }
     }
-    private ClientData receiveClientData(Client client, DatagramPacket datagramPacket, CollectionManager collectionManager, Printer printer, ControlCenter controlCenter) throws IOException, ClassNotFoundException {
+    private ClientData receiveClientData(ClientConnection clientConnection, DatagramPacket datagramPacket, ClientManager clientManager) throws IOException, ClassNotFoundException {
         byte[] data = datagramPacket.getData();
         int counter = ((data[0] & 0xFF) << 24) | ((data[1] & 0xFF) << 16) | ((data[2] & 0xFF) << 8 ) | ((data[3] & 0xFF));
         ClientData clientData;
         if (counter >= 0){
             logger.trace("Получен чанк номер " + (1+counter/CHUNK_SIZE));
-            clientData = client.getHandler().add(datagramPacket, CHUNK_SIZE);
+            clientData = clientManager.getHandlers().get(clientConnection).add(datagramPacket, CHUNK_SIZE);
         }
         else{
             logger.trace("Получен чанк номер " + 1 + " ожидается еще "+ (-1+((int) -1*counter/CHUNK_SIZE)) +" чанков");
-            clientData = client.getHandler().handle(datagramPacket, CHUNK_SIZE);
+            clientData = clientManager.getHandlers().get(clientConnection).handle(datagramPacket, CHUNK_SIZE);
         }
         return clientData;
     }
@@ -102,7 +104,7 @@ public class Server {
             throw new IOException();
         }
     }
-
+    CheckLoginAndPasswd()
     private boolean checkAccess(ClientData clientData, Client client) throws IOException {
         if (Objects.equals(clientData.getName(), "checkAccess")){
             client.increaseCounter();

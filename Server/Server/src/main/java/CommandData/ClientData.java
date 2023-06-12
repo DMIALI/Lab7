@@ -11,6 +11,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @ToString(includeFieldNames = true)
 public class ClientData implements Comparable {
+    private String login;
+    private char[] passwd;
     private String name;
     private String arg;
     private MusicBand musicBand;
