@@ -18,7 +18,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ClientManager {
-    private final String clientsPath = "C:\\Users\\фвьшт\\IdeaProjects\\Lab7\\Server\\Server\\src\\main\\java\\Main\\.clients.json";
+    private final String clientsPath = "C:\\Users\\dmitr\\IdeaProjects\\Java-Programming\\Java-Programming\\LaboratoryWork6\\Lab7\\Server\\Server\\src\\main\\java\\Main\\.clients.json";
     @Getter
     private Clients clients;
     @Getter

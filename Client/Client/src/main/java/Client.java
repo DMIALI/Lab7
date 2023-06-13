@@ -79,15 +79,17 @@ public class Client {
 
                 //printer.errPrintln(new String(newPassword));
             }
-            try{
-                ArrayList ans = sendThenReceive(clientData);
-                outputAnswers(ans);
-                ServerData serverData = (ServerData) ans.get(0);
-                if (((ServerData) ans.get(0)).printType() != PrintType.ERRPRINTLN){
-                    break;
+            if (clientData != null){
+                try {
+                    ArrayList ans = sendThenReceive(clientData);
+                    outputAnswers(ans);
+                    ServerData serverData = (ServerData) ans.get(0);
+                    if (((ServerData) ans.get(0)).printType() != PrintType.ERRPRINTLN) {
+                        break;
+                    }
+                } catch (IOException e) {
+                    printer.errPrintln(String.valueOf(e));
                 }
-            } catch (IOException e){
-                printer.errPrintln(String.valueOf(e));
             }
         }
     }
