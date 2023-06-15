@@ -152,6 +152,7 @@ public class Client {
 
     private void outputAnswers(ArrayList<ServerData> ans){
         for (ServerData serverData : ans){
+            System.out.println(serverData.message());
             printer.out(serverData.message(), serverData.printType());
             printer.outPrintln("");
         }
