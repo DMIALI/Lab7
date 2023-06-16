@@ -23,7 +23,7 @@ public class RemoveById extends Command {
             ResultSet resultSet = statement.executeQuery("SELECT * FROM public.collection WHERE  username = '" + input.client().getLogin()+ "'");
             while (resultSet.next()) {
                 if (id == resultSet.getLong("band_name_id") && input.client().getLogin().equals(resultSet.getString("username"))){
-                    statement.executeUpdate("Delete  from collection where username = '" + input.client().getLogin() + "' and band_name_id = " +id);
+                    statement.executeUpdate("Delete  from collection where  and band_name_id = " +id);
                     input.printer().outPrintln("Элемент успешно удален =)", input.client(), input.clientData());
                     input.collectionManager().getIdManager().remove((long) id);
                     return;
