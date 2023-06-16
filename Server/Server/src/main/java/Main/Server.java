@@ -186,6 +186,7 @@ public class Server {
     public static void main(String[] args) throws IOException {
         checkArgs(args);
         DatagramSocket datagramSocket = checkPort(args[1]);
+        DataBase dataBase = new DataBase();
         Server server = new Server(datagramSocket);
         server.clientManager = new ClientManager();
         Scanner scanner = new Scanner(System.in);

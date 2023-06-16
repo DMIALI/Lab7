@@ -18,7 +18,7 @@ public class DataBase {
     private static Statement statement;
     private static final Logger logger = LogManager.getLogger();
 
-    public DataBase(String userName) {
+    public DataBase() {
         connection();
     }
 

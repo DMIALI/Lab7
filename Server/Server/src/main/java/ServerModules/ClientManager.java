@@ -68,6 +68,8 @@ public class ClientManager {
         }
     }
     public char[] get_SHA_512_Password(char[] passwordToHash){
+
+        //System.out.println(hashMaker.get_SHA_512_Password(String.valueOf(passwordToHash), "weLoveProgramming", logger).toCharArray());
         return hashMaker.get_SHA_512_Password(String.valueOf(passwordToHash), "weLoveProgramming", logger).toCharArray();
     }
 

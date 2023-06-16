@@ -50,17 +50,19 @@ public class Client {
 
     public void authorization(){
         while (true){
+            char[] newPassword = new char[100];
+            String newUsername = null;
             printer.outPrintln("Вы хотите зарегистрироваться или войти в существующий аккаунт?");
             printer.outPrintln("LogIn - войти \t Create - зарегистрироваться");
             String input = scanner.nextLine();
             ClientData clientData = null;
             if (input.toLowerCase().equals("LogIn".toLowerCase())){
                 printer.outPrintln("Введите имя пользователя");
-                String newUsername = scanner.nextLine();
+                newUsername = scanner.nextLine();
                 //String newUsername = System.console().readLine();
                 printer.outPrintln("Введите пароль");
                 //char[] newPassword = System.console().readPassword(); - хороший ввод пароля, без отображения
-                char[] newPassword = scanner.nextLine().toCharArray();
+                newPassword = scanner.nextLine().toCharArray();
                 clientData = ClientData.builder()
                         .name("clientEntry")
                         .login(newUsername)
@@ -68,10 +70,10 @@ public class Client {
             } else if (input.toLowerCase().equals("Create".toLowerCase())){
                 printer.outPrintln("Введите имя пользователя");
                 //String newUsername = System.console().readLine();
-                String newUsername = scanner.nextLine();
+                newUsername = scanner.nextLine();
                 printer.outPrintln("Введите пароль");
                 //char[] newPassword = System.console().readPassword(); - хороший ввод пароля, без отображения
-                char[] newPassword = scanner.nextLine().toCharArray();
+                newPassword = scanner.nextLine().toCharArray();
                 clientData = ClientData.builder()
                         .name("createNewClient")
                         .login(newUsername)
@@ -85,6 +87,8 @@ public class Client {
                     outputAnswers(ans);
                     ServerData serverData = (ServerData) ans.get(0);
                     if (((ServerData) ans.get(0)).printType() != PrintType.ERRPRINTLN) {
+                        password = newPassword;
+                        login = newUsername;
                         break;
                     }
                 } catch (IOException e) {
@@ -152,7 +156,6 @@ public class Client {
 
     private void outputAnswers(ArrayList<ServerData> ans){
         for (ServerData serverData : ans){
-            System.out.println(serverData.message());
             printer.out(serverData.message(), serverData.printType());
             printer.outPrintln("");
         }
@@ -184,6 +187,8 @@ public class Client {
                 Collections.addAll(listOfCommand, command.split(" "));
                 String name = listOfCommand.remove(0);
                 ClientData clientData = commandsManager.check(name, listOfCommand);
+                clientData.setPasswd(password);
+                clientData.setLogin(login);
                 //here commandData ready for sending
                 if (name.equals("exit")){
                     sendData(clientData);
