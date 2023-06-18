@@ -1,6 +1,7 @@
 package Commands;
 
 import CommandData.InputCommandData;
+import ServerModules.CollectionManager;
 import Utils.Printer;
 
 import java.sql.ResultSet;
@@ -14,7 +15,7 @@ public class Show extends Command {
     @Override
     public void execute(InputCommandData input) {
         try {
-            ResultSet res = statement.executeQuery("SELECT * FROM public.collection WHERE username IS NULL OR username = '" + input.client().getLogin()+ "'");
+            ResultSet res = statement.executeQuery("SELECT * FROM collection");
             StringBuilder answer = new StringBuilder(new String());
             while (res.next()) {
                 // получение и обработка данных
@@ -39,6 +40,8 @@ public class Show extends Command {
 
 //            CollectionManager collectionManager = input.collectionManager();
             Printer printer = input.printer();
+            CollectionManager collectionManager = input.collectionManager();
+            //printer.outPrint(collectionManager.toString(), input.client(), input.clientData());
             printer.outPrint(String.valueOf(answer), input.client(), input.clientData());
 
         } catch (SQLException e) {

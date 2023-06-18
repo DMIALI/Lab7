@@ -18,7 +18,7 @@ public class Shuffle extends Command {
     @Override
     public void execute(InputCommandData input) {
         try {
-            ResultSet res = statement.executeQuery("SELECT * FROM public.collection WHERE username IS NULL OR username = '" + input.client().getLogin() + "'");
+            ResultSet res = statement.executeQuery("SELECT * FROM collection WHERE username IS NULL OR username = '" + input.client().getLogin() + "'");
 
             ArrayList<String> ans  = new ArrayList<>();
             while (res.next()) {
@@ -44,7 +44,10 @@ public class Shuffle extends Command {
                 ans.add(String.valueOf(answer));
             }
             Collections.shuffle(ans);
-            input.printer().outPrintln(ans.toString(), input.client(), input.clientData());
+            CollectionManager collectionManager = input.collectionManager();
+            Collections.shuffle(collectionManager.getMusicBands());
+            input.printer().outPrintln("Элементы успешно перемешались =)", input.client(), input.clientData());
+            //input.printer().outPrintln(ans.toString(), input.client(), input.clientData());
         }catch (SQLException e){
             input.printer().errPrintln("Не удалось осуществить выборку", input.client(), input.clientData());
         }

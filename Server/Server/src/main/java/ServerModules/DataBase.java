@@ -10,9 +10,12 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class DataBase {
-    private static final String DB_URL = "jdbc:postgresql://localhost:5432/postgres";
-    private static final String USER = "postgres";
-    private static final String PASS = "17Dima03";
+//    private static final String DB_URL = "jdbc:postgresql://localhost:5432/postgres";
+//    private static final String USER = "postgres";
+//    private static final String PASS = "17Dima03";
+    final String DB_URL = "jdbc:postgresql://pg/studs";
+    final String USER = "s367803";
+    final String PASS = "fmxo3eOtmYV8Jtgz";
     private static Connection connection;
     @Getter
     private static Statement statement;
@@ -34,5 +37,8 @@ public class DataBase {
         }catch (SQLException e) {
             System.err.println("Connection Failed");
         }
+    }
+    public synchronized void executeSta(){
+
     }
 }

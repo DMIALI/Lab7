@@ -17,7 +17,7 @@ import java.util.Scanner;
 
 
 public class Client {
-    private static final int CHUNK_SIZE = 250;
+    private static final int CHUNK_SIZE = 4000;
     private static Printer printer = new Printer();
     private static Scanner scanner = new Scanner(System.in);
     private static Handler handler = new Handler();
@@ -35,7 +35,7 @@ public class Client {
 
     public void connection() throws UnknownHostException {
         try{
-            datagramSocket.connect(InetAddress.getByName("localhost"), SERVER_PORT);
+            datagramSocket.connect(InetAddress.getByName("helios.cs.ifmo.ru"), SERVER_PORT);
             datagramSocket.setSoTimeout(10_000);
             authorization();
             printer.outPrintln("Подключение успешно выполнено!");

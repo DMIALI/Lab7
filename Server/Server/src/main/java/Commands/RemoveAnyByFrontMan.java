@@ -19,7 +19,7 @@ public class RemoveAnyByFrontMan extends Command {
         String arg = input.clientData().getArg();
 
         try {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM public.collection WHERE  username = '" + input.client().getLogin() + "'");
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM collection WHERE  username = '" + input.client().getLogin() + "'");
             while (resultSet.next()) {
                 if (arg.equals(resultSet.getString("personName"))) {
                     statement.executeUpdate("Delete  from collection where  band_name_id = " + resultSet.getLong("band_name_id"));

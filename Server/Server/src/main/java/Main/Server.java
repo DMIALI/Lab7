@@ -16,7 +16,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class Server {
-    private static final int CHUNK_SIZE = 250;
+    private static final int CHUNK_SIZE = 4000;
     @Getter
     private ClientManager clientManager;
     private DatagramSocket datagramSocket;
@@ -177,7 +177,7 @@ public class Server {
         return null;
     }
     private static void checkArgs(String[] args){
-        if (args.length<2) {
+        if (args.length<1) {
             logger.fatal("Введено недостаточно аргументов");
             System.err.println("Необходимо ввести путь к файлу и порт, введено аргументов: " + args.length);
             System.exit(1);
@@ -185,12 +185,12 @@ public class Server {
     }
     public static void main(String[] args) throws IOException {
         checkArgs(args);
-        DatagramSocket datagramSocket = checkPort(args[1]);
+        DatagramSocket datagramSocket = checkPort(args[0]);
         DataBase dataBase = new DataBase();
         Server server = new Server(datagramSocket);
         server.clientManager = new ClientManager();
         Scanner scanner = new Scanner(System.in);
-        CollectionManager collectionManager = new CollectionManager(args[0], scanner);
+        CollectionManager collectionManager = new CollectionManager(scanner);
         Printer printer = new Printer(server);
         ControlCenter controlCenter = new ControlCenter();
         ExecutorService executorService = Executors.newCachedThreadPool();

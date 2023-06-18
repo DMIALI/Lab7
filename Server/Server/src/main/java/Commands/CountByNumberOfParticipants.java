@@ -16,7 +16,7 @@ public class CountByNumberOfParticipants extends Commands.Command {
     public void execute(InputCommandData input) {
         int arg = Integer.parseInt( input.clientData().getArg());
         try {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM public.collection");
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM collection");
             StringBuilder answer = new StringBuilder(new String());
             int countByNumberOfParticipants = 0;
             while (resultSet.next()) {

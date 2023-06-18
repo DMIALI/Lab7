@@ -20,12 +20,15 @@ public class RemoveAt extends Command {
         int index = Integer.parseInt(arg);
         int dataBaseIndex = 1;
         try {
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM public.collection");
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM collection");
             while (resultSet.next()) {
                 if (index == dataBaseIndex){
                     if (input.client().getLogin().equals(resultSet.getString("username"))){
                         statement.executeUpdate("Delete  from collection where username = '" + input.client().getLogin() + "' and band_name_id = " +resultSet.getLong("band_name_id"));
                         input.printer().outPrintln("Элемент успешно удален =)", input.client(), input.clientData());
+                        collectionManager.getMusicBands().remove(index);
+                        collectionManager.getIdManager().remove((long) index);
+                        printer.outPrintln("Элемент успешно удален =)", input.client(), input.clientData());
                         return;
                     }
                     throw new SQLException();

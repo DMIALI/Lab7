@@ -20,10 +20,14 @@ public class RemoveById extends Command {
         try {
             String arg = input.clientData().getArg();
             long id = Integer.parseInt(arg);
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM public.collection WHERE  username = '" + input.client().getLogin()+ "'");
+            CollectionManager collectionManager = input.collectionManager();
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM collection WHERE  username = '" + input.client().getLogin()+ "'");
             while (resultSet.next()) {
                 if (id == resultSet.getLong("band_name_id") && input.client().getLogin().equals(resultSet.getString("username"))){
                     statement.executeUpdate("Delete  from collection where  and band_name_id = " +id);
+                    collectionManager.getMusicBands().remove(collectionManager.getMusicBandById(id));
+                    collectionManager.getIdManager().remove(id);
+                    printer.outPrintln("Элемент успешно удален =)", input.client(), input.clientData());
                     input.printer().outPrintln("Элемент успешно удален =)", input.client(), input.clientData());
                     input.collectionManager().getIdManager().remove((long) id);
                     return;

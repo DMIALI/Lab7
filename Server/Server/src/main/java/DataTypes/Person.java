@@ -10,6 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString(includeFieldNames = true)
+@Builder
 
 public class Person {
     private String name;
